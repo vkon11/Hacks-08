@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
-import { AlertCircle, ArrowLeft, Compass, MapPin } from 'lucide-react'
-import Home from './Home'
+import { AlertCircle, ArrowLeft } from 'lucide-react'
 import Budget from './Budget'
 import Summary from './Summary'
 import { routePath, stepNames, steps, type Route } from './routing'
@@ -11,23 +10,19 @@ const Board = lazy(() => import('../board/Board'))
 
 const titles = {
   budget: 'What’s your maximum monthly housing budget?',
-  location: 'Where would you most like to live near?',
+  location: 'Where do you want to be close to?',
   board: 'What matters in your apartment?',
   saved: 'Your priorities are saved',
   home: 'Ann Arbor Housing Board',
 }
 const instructions = {
   budget: 'Include your share of rent and required recurring housing fees.',
-  location: 'Pick the spot you’d like to be close to, like Ross, the Diag, or North Campus.',
+  location: 'Think about where you go most, like class, work or the gym. Pick one spot between those places, or pin the one you visit most. Search for a place or tap the map.',
   board: 'Choose what matters. Put your highest priorities first in each group.',
 }
 
-export default function App({ accountId }: { accountId?: string }) {
-  return <Journey key={accountId ?? 'guest'} accountId={accountId} />
-}
-
-function Journey({ accountId }: { accountId?: string }) {
-  const { record, route, navigate, editSection, patch, confirmStep, finish, failure, retry, resume, back } = useQuestionnaire(accountId)
+export default function Journey({ accountId }: { accountId: string }) {
+  const { record, route, navigate, editSection, patch, confirmStep, finish, failure, retry, back } = useQuestionnaire(accountId)
   const { draft, completed } = record
   const previous = useRef<Route | null>(null)
   useEffect(() => {
@@ -49,25 +44,20 @@ function Journey({ accountId }: { accountId?: string }) {
 
   function routeLink(target: Route) {
     return {
-      href: routePath(target),
+      href: target === 'home' ? '/dashboard' : routePath(target),
       onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
         if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return
         event.preventDefault()
-        navigate(target)
+        if (target === 'home') window.location.assign('/dashboard')
+        else navigate(target)
       },
     }
   }
   const isQuestion = route === 'budget' || route === 'location' || route === 'board'
   return <>
     <a className="skip-link" href="#main">Skip to content</a>
-    <header className="top-bar"><div className="header-inner">
-      <a className="brand" {...routeLink('home')}><img src="/housing-board.svg" alt="" /><span>Ann Arbor Housing Board</span></a>
-      {route === 'home' ? <a className="header-link" href="#how-it-works"><Compass size={17} />How it works</a>
-        : <span className="region"><MapPin size={15} /> Ann Arbor, MI</span>}
-    </div></header>
     {failure && <aside className="storage-error" role="alert"><AlertCircle size={19} />
       <span>Changes couldn’t be saved on this device</span><button className="text-button" onClick={retry}>Retry</button></aside>}
-    {route === 'home' && <Home started={draft.started} resume={resume} step={draft.step} onStart={() => navigate(resume)} />}
     {isQuestion && <main className={'question view question-' + route} id="main">
       <div className="step-nav"><a {...routeLink(back)} className="back-link"><ArrowLeft size={16} />Back</a>
         <ol className="step-ticks" aria-label="Questionnaire progress">{steps.map((step, i) => <li key={step} aria-current={route === step ? 'step' : undefined}

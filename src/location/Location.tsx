@@ -3,6 +3,7 @@ import { ChevronDown, MapPin, Search } from 'lucide-react'
 import { inBounds, isCompleteRanking, MAP_BOUNDS } from '../model/inputs'
 import type { IdealLocation, TravelMode } from '../model/types'
 import { findLandmarks, type Landmark } from './landmarks'
+import { searchAnnArbor } from './placeSearch'
 import TravelRanking from './TravelRanking'
 import './location.css'
 
@@ -36,9 +37,32 @@ export default function Location({ pin, ranking, onPin, onRanking, onContinue }:
   const lngInput = useRef<HTMLInputElement>(null)
   const modes = useRef<HTMLFieldSetElement>(null)
   const mapGroup = useRef<HTMLDivElement>(null)
-  const landmarks = findLandmarks(query)
+  const request = useRef(0)
+  const [online, setOnline] = useState<Landmark[]>([])
+  const [notice, setNotice] = useState('')
+  const landmarks = [...findLandmarks(query), ...online]
+
+  async function searchMore() {
+    const id = ++request.current
+    setNotice('Searching Ann Arbor…')
+    try {
+      const matches = await searchAnnArbor(query)
+      if (id !== request.current) return
+      setOnline(matches)
+      setNotice(matches.length ? 'Online results from OpenStreetMap' : 'No more places found. Try an address or tap the map.')
+    } catch (error) {
+      if (id === request.current) setNotice(error instanceof Error && error.message.startsWith('Please wait') ? error.message : 'Online search is unavailable. Try the campus results or tap the map.')
+    }
+  }
+
+  function resetOnline() {
+    request.current++
+    setOnline([])
+    setNotice('')
+  }
 
   function choose(point: IdealLocation) {
+    resetOnline()
     setSearchOpen(false)
     setQuery('')
     setLatitude(String(point.lat))
@@ -89,13 +113,18 @@ export default function Location({ pin, ranking, onPin, onRanking, onContinue }:
           setSearchOpen(false)
         }
       }}>
-        <label htmlFor="landmark-input">Find a campus landmark</label>
+        <label htmlFor="landmark-input">Find a campus building or place</label>
         <div className="landmark-input"><Search size={19} aria-hidden="true" />
-          <input ref={search} id="landmark-input" autoComplete="off" placeholder="Search by landmark or campus"
+          <input ref={search} id="landmark-input" autoComplete="off" placeholder="Search by name, abbreviation or address"
             value={query} aria-invalid={missing === 'pin'} aria-describedby={missing === 'pin' ? 'pin-error' : undefined}
             onClick={() => setSearchOpen(true)} onFocus={() => setSearchOpen(true)}
-            onChange={event => { setQuery(event.target.value); setSearchOpen(true) }}
+            onChange={event => { resetOnline(); setQuery(event.target.value); setSearchOpen(true) }}
             onKeyDown={event => {
+              if (event.key === 'Enter' && query.trim()) {
+                event.preventDefault()
+                if (landmarks.length) selectLandmark(landmarks[0])
+                else void searchMore()
+              }
               if (event.key === 'ArrowDown') {
                 event.preventDefault()
                 setSearchOpen(true)
@@ -105,10 +134,10 @@ export default function Location({ pin, ranking, onPin, onRanking, onContinue }:
         </div>
         {missing === 'pin' && <p className="location-error" role="alert" id="pin-error">Choose a location</p>}
         {searchOpen && <div className="landmark-results" ref={results} role="group" aria-label="Landmark results">
-          {landmarks.length ? landmarks.map(landmark => <button type="button" key={landmark.id} onClick={() => selectLandmark(landmark)}>
+          {landmarks.length ? landmarks.map(landmark => <button type="button" key={landmark.id} onMouseDown={event => event.preventDefault()} onClick={() => selectLandmark(landmark)}>
             <MapPin size={16} aria-hidden="true" /><span>{landmark.label}</span><small>{landmark.campus}</small>
           </button>) : <>
-            <p>No landmarks found.</p>
+            <p>No campus directory matches.</p>
             <button type="button" onClick={() => {
               setQuery('')
               setSearchOpen(false)
@@ -116,6 +145,8 @@ export default function Location({ pin, ranking, onPin, onRanking, onContinue }:
               target?.focus()
             }}>Choose a point on the map</button>
           </>}
+          {query.trim() && <button type="button" onClick={searchMore}>Search all of Ann Arbor for “{query.trim()}”</button>}
+          {notice && <p role="status">{notice}</p>}
         </div>}
       </div>
       <div ref={mapGroup}><Suspense fallback={<div className="location-map-loading" role="status">Loading map…</div>}>

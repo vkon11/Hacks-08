@@ -28,7 +28,7 @@ self.addEventListener('activate', event => event.waitUntil((async () => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
-  const page = event.request.mode === 'navigate' && (url.pathname === '/' || url.pathname.startsWith('/preferences/'));
+  const page = event.request.mode === 'navigate' && (url.pathname === '/' || url.pathname === '/dashboard' || url.pathname.startsWith('/preferences/'));
   if (!page && !urls.includes(url.pathname)) return;
   event.respondWith((async () => {
     const cache = await caches.open(cacheName);
@@ -43,4 +43,4 @@ self.addEventListener('fetch', event => {
   }
 }
 
-export default defineConfig({ plugins: [react(), offlineShell()] })
+export default defineConfig({ envPrefix: ['VITE_', 'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'], plugins: [react(), offlineShell()] })

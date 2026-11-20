@@ -1,6 +1,6 @@
 # Ann Arbor Housing Board
 
-A three-step guest questionnaire for Ann Arbor apartment preferences. Students set a monthly ceiling, choose a location and rank their travel modes, then sort housing factors on a priority board. Drafts and saved profiles live in the current browser. The guest flow runs without credentials.
+A three-step questionnaire for Ann Arbor apartment preferences. Students set a monthly ceiling, choose a location and rank their travel modes, then sort housing factors on a priority board. Drafts and saved profiles live in the current browser. Students sign in with their U-M Google account through Supabase. Account details come from Supabase and housing preferences are saved per account on this device.
 
 ## Run locally
 
@@ -17,13 +17,17 @@ The development server prints its local URL. To try offline reload, run `npm run
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Start or resume a questionnaire, or reopen a saved profile |
+| `/` | Public landing page |
+| `/login` and `/auth/callback` | Google OAuth sign-in and return |
+| `/dashboard` | Account profile, questionnaire and current recommendations |
 | `/preferences/budget` | Confirm the maximum monthly cost per person |
 | `/preferences/location` | Pick a location and rank Walk, Car, Bus and Bike |
 | `/preferences/board` | Place, order and save housing priorities |
 | `/preferences/saved` | Review the saved snapshot and edit a section |
 
-The matcher handoff is `PreferenceProfileV1` in [src/model/types.ts](src/model/types.ts). `loadRecord().completed` returns the last successfully saved profile. It includes integer cents, a geographic point, all four modes in frequency order, and ordered factors with typed values, hard rules or signed soft weights. Guest storage uses the key `ann-arbor-housing-board:v1:guest`. An optional account ID on the app boundary selects a separate local namespace.
+The matcher handoff is `PreferenceProfileV1` in [src/model/types.ts](src/model/types.ts). `loadRecord(user.id).completed` returns the last successfully saved profile. It includes integer cents, a geographic point, all four modes in frequency order, and ordered factors with typed values, hard rules or signed soft weights. For Google OAuth, allow each site's `/auth/callback` URL in Supabase Auth redirect settings. The client uses the project's public key. Override the project with `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` if needed.
+
+The dashboard reads recommendations belonging to the signed-in user and the exact saved questionnaire revision. The optional table definition is in [supabase/recommendations.sql](supabase/recommendations.sql). A matcher must publish rows before listings appear.
 
 ## Checks
 
@@ -39,7 +43,8 @@ Browser tests use installed Google Chrome when available. Otherwise install Chro
 
 The homepage map is a locally rendered crop of OpenStreetMap street, path and building geometry. Map data © OpenStreetMap contributors, available under the ODbL. [OpenStreetMap attribution and license](https://www.openstreetmap.org/copyright)
 
-Campus pins use the University of Michigan tour markers and the Facilities & Operations record for The Diag Proper. Application landmark IDs and coordinates are bundled in [src/location/landmarks.ts](src/location/landmarks.ts). [Campus tour data](https://tour.umich.edu/locations.json) · [The Diag Proper](https://gisapi.fo.umich.edu/arcgis/rest/services/CommonLocations/MapServer/0/524)
+Campus search includes U-M building footprints and named outdoor spaces, with a tour marker for the transit center. Directory search works offline. The “Search all of Ann Arbor” button sends the entered query to OpenStreetMap Nominatim for additional places and addresses. Set `VITE_PLACE_SEARCH_URL` to use another Nominatim-compatible endpoint. [U-M buildings](https://gisapi.fo.umich.edu/arcgis/rest/services/SearchBuildingsParking_BuildingswithAltText/MapServer/2) · [U-M common locations](https://gisapi.fo.umich.edu/arcgis/rest/services/CommonLocations/MapServer/0) · [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/)
+
 
 Leaflet uses standard OpenStreetMap tiles for the local demo. A deployment can set `VITE_MAP_TILE_URL` and `VITE_MAP_ATTRIBUTION` at build time for its tile provider. A student can complete the location step with a bundled landmark or coordinates even if tiles are unavailable. [Tile usage policy](https://operations.osmfoundation.org/policies/tiles/)
 

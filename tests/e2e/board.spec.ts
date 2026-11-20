@@ -1,11 +1,11 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../accountFixture';
 
 async function reachBoard(page: Page) {
   await page.route('https://tile.openstreetmap.org/**', route => route.abort());
-  await page.goto('/');
+  await page.goto('/dashboard');
   await page.getByText('Start questionnaire', { exact: true }).press('Enter');
   await page.getByRole('button', { name: 'Continue', exact: true }).press('Enter');
-  await page.getByLabel('Find a campus landmark').pressSequentially('Ross');
+  await page.getByLabel('Find a campus building or place').pressSequentially('Ross');
   await page.getByRole('button', { name: /Ross School of Business/ }).press('Enter');
   for (const mode of ['Walk', 'Bus', 'Bike']) {
     await page.getByRole('button', { name: mode, exact: true }).press('Enter');

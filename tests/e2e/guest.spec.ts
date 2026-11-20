@@ -1,18 +1,18 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from '../accountFixture'
 import type { GuestRecord } from '../../src/model/types'
 
-const guestKey = 'ann-arbor-housing-board:v1:guest'
+const guestKey = 'ann-arbor-housing-board:v1:account:test-student'
 
 async function latestRecord(page: Page): Promise<GuestRecord> {
   return page.evaluate(key => JSON.parse(localStorage.getItem(key)!), guestKey)
 }
 
 async function reachBoard(page: Page) {
-  await page.goto('/')
+  await page.goto('/dashboard')
   await page.getByText('Start questionnaire', { exact: true }).click()
   await page.getByLabel('Maximum monthly budget').fill('1423')
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
-  await page.getByLabel('Find a campus landmark').fill('ross')
+  await page.getByLabel('Find a campus building or place').fill('ross')
   await page.getByRole('button', { name: /Ross School of Business/ }).click()
   for (const name of ['Bus', 'Walk', 'Bike']) {
     await page.getByRole('button', { name, exact: true }).click()
@@ -75,6 +75,9 @@ test('a guest reloads offline and edits budget and commute mode independently', 
   const revised = (await latestRecord(page)).completed!
   expect(revised).toEqual({ ...after, rankedTravelModes: ['bike', 'bus', 'walk', 'car'], updatedAt: revised.updatedAt })
   await page.goto('/')
+  await page.getByRole('link', { name: 'Open dashboard' }).click()
+  await expect(page.getByRole('heading', { name: 'Your dashboard' })).toBeVisible()
+  await expect(page.getByText('Your preferences are saved. There are no apartment recommendations for this profile yet.')).toBeVisible()
   await page.getByText('View my priorities', { exact: true }).click()
   await expect(summary).toBeVisible()
 })
@@ -86,7 +89,7 @@ test('direct URLs preserve the first missing step until its answers are confirme
   await page.goto('/preferences/board')
   await expect(page).toHaveURL(/\/preferences\/location$/)
   await page.getByRole('button', { name: 'Bus', exact: true }).click()
-  await page.goto('/')
+  await page.goto('/dashboard')
   await page.getByText('Continue questionnaire', { exact: true }).click()
   await expect(page).toHaveURL(/\/preferences\/location$/)
   await expect(page.getByRole('button', { name: '1 Bus', exact: true })).toBeVisible()

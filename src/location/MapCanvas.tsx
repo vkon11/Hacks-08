@@ -99,9 +99,15 @@ export default function MapCanvas({ pin, onPoint, recenter }: MapCanvasProps) {
       })
     }
     active.setLatLng(position)
+    active.unbindTooltip()
+    if (pin.source === 'landmark') {
+      const label = document.createElement('span')
+      label.textContent = pin.label
+      active.bindTooltip(label, { permanent: true, direction: 'top', offset: [0, -38] }).openTooltip()
+    }
     active.getElement()?.setAttribute('aria-label', pin.label)
     if (recenter !== lastRecenter.current) {
-      instance.setView(position, Math.max(instance.getZoom(), 15), { animate: false })
+      instance.setView(position, Math.max(instance.getZoom(), 17), { animate: false })
       lastRecenter.current = recenter
     }
     setOutside(false)

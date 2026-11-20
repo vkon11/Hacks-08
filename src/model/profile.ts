@@ -1,4 +1,4 @@
-import { LANDMARKS } from '../location/landmarks.ts'
+import { campusPlaces } from '../location/landmarks.ts'
 import { isPlacementList, weightedFactors } from './board.ts'
 import { DEFAULT_BUDGET, inBounds, isCompleteRanking, parseBudgetCents } from './inputs.ts'
 import type { Draft, GuestRecord, IdealLocation, PreferenceProfileV1, Step } from './types.ts'
@@ -11,7 +11,8 @@ export function validLocation(value: unknown): value is IdealLocation {
   if (!isObject(value) || typeof value.lat !== 'number' || typeof value.lng !== 'number'
     || !inBounds(value.lat, value.lng) || typeof value.label !== 'string' || !value.label.trim()) return false
   if (value.source === 'landmark') {
-    return LANDMARKS.some(place => place.id === value.landmarkId)
+    return campusPlaces.some(place => place.id === value.landmarkId) ||
+      (typeof value.landmarkId === 'string' && /^osm-(node|way|relation)-[1-9]\d*$/.test(value.landmarkId))
   }
   return (value.source === 'map' || value.source === 'coordinates') && value.landmarkId === null
 }

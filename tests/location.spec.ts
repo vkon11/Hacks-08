@@ -1,14 +1,14 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './accountFixture'
 
 async function startLocation(page: Page) {
   await page.goto('/preferences/budget')
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
-  await expect(page.getByLabel('Find a campus landmark')).toBeVisible()
+  await expect(page.getByLabel('Find a campus building or place')).toBeVisible()
 }
 
 test('pin identity survives search and zoom, and dragging creates one custom marker', async ({ page }) => {
   await startLocation(page)
-  const search = page.getByLabel('Find a campus landmark')
+  const search = page.getByLabel('Find a campus building or place')
   await search.fill('Ross')
   await page.getByRole('button', { name: /Ross School of Business/ }).click()
   const selected = page.getByRole('region', { name: 'Selected location' })
@@ -48,7 +48,7 @@ test('blocked tiles allow coordinate entry, partial ranking resumes and both inp
   await expect(page.getByText('Map unavailable. Choose a campus landmark or enter coordinates.')).toBeVisible()
   const next = page.getByRole('button', { name: 'Continue', exact: true })
   await next.click()
-  await expect(page.getByLabel('Find a campus landmark')).toBeFocused()
+  await expect(page.getByLabel('Find a campus building or place')).toBeFocused()
   await page.getByText('Enter coordinates', { exact: true }).click()
   const latitude = page.getByRole('textbox', { name: 'Latitude', exact: true })
   const longitude = page.getByRole('textbox', { name: 'Longitude', exact: true })
@@ -73,4 +73,23 @@ test('blocked tiles allow coordinate entry, partial ranking resumes and both inp
   await expect(page.getByRole('button', { name: '1 Walk', exact: true })).toBeVisible()
   await next.click()
   await expect(page).toHaveURL(/\/preferences\/board$/)
+})
+
+test('search drops and restores a labeled pin for campus and online places', async ({ page }) => {
+  await startLocation(page)
+  const search = page.getByLabel('Find a campus building or place')
+  await search.fill('BBB')
+  await search.press('Enter')
+  const marker = page.locator('.leaflet-marker-icon')
+  await expect(marker).toHaveAttribute('aria-label', 'Beyster Building')
+  await expect(page.locator('.leaflet-tooltip')).toHaveText('Beyster Building')
+  await page.route('https://nominatim.openstreetmap.org/search?**', route => route.fulfill({
+    json: [{ osm_type: 'node', osm_id: 4787322480, lat: '42.2804167', lon: '-83.7496616', name: 'Sweetwaters', display_name: 'Sweetwaters, West Washington Street, Ann Arbor' }],
+  }))
+  await search.fill('Sweetwaters')
+  await page.getByRole('button', { name: /Search all of Ann Arbor/ }).click()
+  await page.getByRole('button', { name: /^Sweetwaters/ }).click()
+  await page.reload()
+  await expect(marker).toHaveCount(1)
+  await expect(marker).toHaveAttribute('aria-label', 'Sweetwaters')
 })

@@ -194,3 +194,4 @@ h1:focus{outline:none}
   .unit{display:block}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+.account-nav{display:flex;align-items:center;gap:16px}.account-nav a{font-size:14px;font-weight:650;text-decoration:none}.auth-action,.dashboard .btn-primary,.dashboard .btn-secondary{margin:16px 10px 0 0}.dashboard h2{font-size:24px;margin-bottom:8px}.matches{padding-left:1.5em}.matches li{padding:10px 0}.matches a,.matches span,.matches small{display:block}.matches a{font-weight:700}.matches small{color:var(--muted)}

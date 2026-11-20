@@ -1,7 +1,5 @@
 import { ArrowRight, Ban, Check, Heart, Layers2, MapPin, Wallet, type LucideIcon } from 'lucide-react'
 import { FactorCard } from '../board/FactorCard'
-import { stepNames, type Route } from './routing'
-import type { Step } from '../model'
 import campusMap from '../assets/central-campus.svg'
 
 function MapSample() {
@@ -27,22 +25,18 @@ function MapSample() {
 
 const guide: { icon: LucideIcon; title: string; copy: string }[] = [
   { icon: Wallet, title: 'Set your budget', copy: 'Choose the most you’ll pay per month, including recurring fees.' },
-  { icon: MapPin, title: 'Pick your spot', copy: 'Drop a pin in Ann Arbor and rank how you usually get around.' },
+  { icon: MapPin, title: 'Pick your spot', copy: 'Pin a spot close to the places you go most, then rank how you get around.' },
   { icon: Layers2, title: 'Sort your priorities', copy: 'Group apartment features by what you need, want or would avoid.' },
 ]
 
-export default function Home({ started, resume, onStart, step }: {
-  started: boolean; resume: Route; onStart: () => void; step: Step
-}) {
-  const completed = resume === 'saved'
+export default function Home({ signedIn }: { signedIn: boolean }) {
   return <main id="main" className="home view">
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero-copy">
         <div className="hero-locator"><MapPin size={14} strokeWidth={2.2} />Ann Arbor, Michigan</div>
         <h1 id="hero-title" tabIndex={-1}>What matters in your next Ann Arbor apartment?</h1>
         <p>Set your budget, choose where you want to live and how you get around, then sort your housing priorities.</p>
-        <button className="btn-primary hero-action" onClick={onStart}>{completed ? 'View my priorities' : started ? 'Continue questionnaire' : 'Start questionnaire'}<ArrowRight size={19} /></button>
-        {started && !completed && <div className="resume-note">Saved step · {stepNames[step]}</div>}
+        <a className="btn-primary hero-action" href={signedIn ? '/dashboard' : '/login'}>{signedIn ? 'Open dashboard' : 'Get started'}<ArrowRight size={19} /></a>
       </div>
       <MapSample />
     </section>
