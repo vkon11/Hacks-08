@@ -1,0 +1,110 @@
+{
+  "description": "Initial Ann Arbor scrape targets. Websites and addresses come from U-M Off-Campus Housing listings; nothing is hand-entered.",
+  "targets": [
+    {
+      "id": "foundry-lofts",
+      "name": "Foundry Lofts",
+      "website": "https://www.foundryloftsannarbor.com/",
+      "address": "413 E HURON ST, ANN ARBOR, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 6815"
+    },
+    {
+      "id": "haven-on-geddes",
+      "name": "Haven On Geddes",
+      "website": "https://www.havenongeddes.com/",
+      "address": "1700 Geddes Ave, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 241903"
+    },
+    {
+      "id": "varsity",
+      "name": "Varsity",
+      "website": "https://www.varsityannarbor.com/",
+      "address": "425 E. Washington St, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 7229"
+    },
+    {
+      "id": "sterling-arbor-blu",
+      "name": "Sterling Arbor Blu",
+      "website": "https://sterlingarborblu.com/",
+      "address": "624 Church Street, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 17481"
+    },
+    {
+      "id": "vic-village",
+      "name": "Vic Village",
+      "website": "https://thevicvillage.com/",
+      "address": "1107 S University Ave Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 57074"
+    },
+    {
+      "id": "six11",
+      "name": "Six11",
+      "website": "https://livesix11.com/",
+      "address": "611 East University Avenue, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 57185"
+    },
+    {
+      "id": "verve",
+      "name": "Verve",
+      "website": "https://verveannarbor.com/",
+      "address": "721 S. FOREST AVE, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 113523"
+    },
+    {
+      "id": "landmark",
+      "name": "Landmark",
+      "website": "https://www.livethelandmark.com/",
+      "address": "1300 South University Ave, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 107340"
+    },
+    {
+      "id": "the-yard",
+      "name": "The Yard",
+      "website": "https://livetheyard.com/",
+      "address": "615 South Main Street, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 57184"
+    },
+    {
+      "id": "hub-william",
+      "name": "Hub William",
+      "website": "https://www.hubwilliam.com/",
+      "address": "333 E William St, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 230356"
+    },
+    {
+      "id": "hub-state-street",
+      "name": "Hub State Street",
+      "website": "https://huboncampus.com/ann-arbor-state-street/",
+      "address": "723 Packard Street, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 235816"
+    },
+    {
+      "id": "chapter",
+      "name": "Chapter",
+      "website": "https://chapterannarbor.com/",
+      "address": "1209 South University Avenue, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 239768"
+    },
+    {
+      "id": "u-towers",
+      "name": "U Towers",
+      "website": "https://u-towers.com/",
+      "address": "536 S Forest Ave, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 107320"
+    },
+    {
+      "id": "rambler",
+      "name": "Rambler",
+      "website": "https://www.ramblerannarbor.com/",
+      "address": "701 Church St, Ann Arbor, MI 48104",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 242067"
+    },
+    {
+      "id": "courtyards",
+      "name": "Courtyards",
+      "website": "https://courtyardsapts.com/",
+      "address": "1780 Broadway Street, Ann Arbor, MI 48105",
+      "source_note": "landlord_website on U-M Off-Campus Housing listing 17490"
+    }
+  ]
+}
