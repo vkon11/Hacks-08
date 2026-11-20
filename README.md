@@ -1,6 +1,6 @@
 # Ann Arbor Housing Board
 
-A housing recommender for U-M students built for Hack the Lease. Choose a per-person monthly ceiling, pin a destination, rank Walk, Car, Bus and Bike, then mark requirements and describe your ideal apartment in your own words. Review the resulting brief and see up to **six distinct floor plans** when verified inventory is available. Head-to-head comparisons and the final three are a later milestone.
+A housing recommender for U-M students built for Hack the Lease. Choose a per-person monthly ceiling, pin a destination, rank Walk, Car, Bus and Bike, then mark requirements and describe your ideal apartment in your own words. Review the resulting brief and see up to **five distinct floor plans** when verified inventory is available, then compare them head to head to pick a favorite.
 
 ## Run locally
 

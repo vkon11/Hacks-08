@@ -76,7 +76,7 @@ const guide: { icon: LucideIcon; title: string; copy: string }[] = [
   {
     icon: MapPin,
     title: 'Find your shortlist',
-    copy: 'Once listings arrive, see up to six floor plans that meet your requirements, with the room, monthly price and reasons for each match.'
+    copy: 'Once listings arrive, see up to five floor plans that meet your requirements, with the room, monthly price and reasons for each match.'
   },
   {
     icon: Layers2,

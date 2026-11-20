@@ -21,7 +21,7 @@ const setup = {
   travelModes: ['walk', 'bus', 'car', 'bike'],
   choices: {}
 }
-test('authenticated HTTP path filters an inventory file, ranks six distinct layouts and surfaces missing configuration', async (t) => {
+test('authenticated HTTP path filters an inventory file, ranks five distinct layouts and surfaces missing configuration', async (t) => {
   const folder = await mkdtemp(join(tmpdir(), 'housing-test-'))
   const auth = await serve((req, res) => {
     res.setHeader('Content-Type', 'application/json')
@@ -98,7 +98,7 @@ test('authenticated HTTP path filters an inventory file, ranks six distinct layo
   assert.equal(ranked.cache, 'private, no-store')
   assert.deepEqual(
     ranked.data.matches.map((m: { layoutId: string }) => m.layoutId),
-    ['l0', 'l1', 'l2', 'l3', 'l4', 'l5']
+    ['l0', 'l1', 'l2', 'l3', 'l4']
   )
   const hard = await post('rank', {
     setup: { ...setup, choices: { heat: { value: 'included', required: true } } },

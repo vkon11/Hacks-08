@@ -81,3 +81,43 @@ export function createOtpLookup(endpoint = process.env.OTP_GRAPHQL_URL, request 
     }
   }
 }
+
+// Fallback when no routing service is configured or it fails: straight-line distance × a street detour factor
+// at a typical speed. Always labeled as an estimate so it never reads as a verified route.
+const speedMetersPerMinute: Record<TravelMode, number> = { walk: 80, bike: 250, car: 400, bus: 250 }
+const detourFactor: Record<TravelMode, number> = { walk: 1.3, bike: 1.3, car: 1.4, bus: 1.4 }
+const busWaitAndWalkMinutes = 8
+const estimateLabels: Record<TravelMode, string> = {
+  walk: 'walking', bike: 'cycling', car: 'driving', bus: 'bus (includes walk and wait)',
+}
+
+function straightLineMeters(a: Coordinates, b: Coordinates) {
+  const rad = (degrees: number) => (degrees * Math.PI) / 180
+  const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lng - a.lng) / 2) ** 2
+  return 2 * 6371000 * Math.asin(Math.sqrt(h))
+}
+
+export function estimateRoute(origin: Coordinates, setup: SearchSetup, now = new Date()): RouteEstimate {
+  const mode = setup.travelModes[0]
+  const meters = straightLineMeters(origin, setup.pin) * detourFactor[mode]
+  return {
+    minutes: meters / speedMetersPerMinute[mode] + (mode === 'bus' ? busWaitAndWalkMinutes : 0),
+    basis: 'Estimate from distance at typical ' + estimateLabels[mode] + ' speed',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Haversine_formula',
+    checkedAt: now.toISOString(),
+  }
+}
+
+/** Routing service when configured; a labeled distance estimate when it is missing or errors. A service "no route" stays null. */
+export function createRouteLookup(endpoint = process.env.OTP_GRAPHQL_URL, request = fetch, now = () => new Date()): RouteLookup {
+  const otp = createOtpLookup(endpoint, request, now)
+  if (!otp) return async (origin, setup) => estimateRoute(origin, setup, now())
+  return async (origin, setup, signal) => {
+    try {
+      return await otp(origin, setup, signal)
+    } catch {
+      if (signal?.aborted) throw signal.reason
+      return estimateRoute(origin, setup, now())
+    }
+  }
+}

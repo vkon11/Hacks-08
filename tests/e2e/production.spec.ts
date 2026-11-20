@@ -5,7 +5,7 @@ import { once } from 'node:events'
 import { resolve } from 'node:path'
 import { expect, test } from '../accountFixture'
 
-test('production server returns six floor plans and recalculates after a budget edit', async ({ page }) => {
+test('production server returns five floor plans and recalculates after a budget edit', async ({ page }) => {
   const identity = createServer((req, res) => {
     if (req.url !== '/auth/v1/user' || !req.headers.authorization) {
       res.writeHead(401).end()
@@ -54,8 +54,9 @@ test('production server returns six floor plans and recalculates after a budget 
       await page.getByRole('button', { name: 'Show my matches' }).click()
     }
     await submitSetup()
-    await expect(page.locator('.shortlist>li')).toHaveCount(6)
+    await expect(page.locator('.shortlist>li')).toHaveCount(5)
     await expect(page.locator('.shortlist>li').first()).toContainText('$1,090 per person')
+    await page.locator('.shortlist>li .shortlist-summary').first().click()
     await page.locator('.shortlist>li').first().getByText('Sources for this match').click()
     await expect(
       page

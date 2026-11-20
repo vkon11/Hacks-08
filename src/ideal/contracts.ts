@@ -3,6 +3,9 @@ import { inBounds, isCompleteRanking } from '../model/inputs.ts'
 import type { IdealLocation, TravelMode } from '../model/types.ts'
 export type { IdealLocation, TravelMode } from '../model/types.ts'
 
+/** How many floor plans the shortlist returns. These are the finalists in the head-to-head round. */
+export const FINALISTS = 5
+
 export const requirementValues = {
   commute: ['20', '30', '40'],
   area: ['500', '750', '1000', '1250'],

@@ -12,7 +12,7 @@ import {
 } from '../src/ideal/contracts.ts'
 import { defaultProjectUrl, defaultPublishableKey } from '../src/account/project.ts'
 import { filterInventory, rankMatches, type FilteredInventory, type MatchResult } from './matching.ts'
-import { createOtpLookup } from './routes.ts'
+import { createRouteLookup } from './routes.ts'
 import { loadInventory } from './inventory.ts'
 import { interpretBrief, assessOffers, LlmError } from './llm.ts'
 import { createResearchEnricher } from './research.ts'
@@ -56,7 +56,7 @@ export function createHousingApi(env: Env) {
       defaultPublishableKey,
     { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
   )
-  const route = createOtpLookup(env.OTP_GRAPHQL_URL)
+  const route = createRouteLookup(env.OTP_GRAPHQL_URL)
   const recent = new Map<string, { at: number; filtered: Promise<FilteredInventory> }>()
   const rankedBySearch = new WeakMap<FilteredInventory, Map<string, Promise<MatchResult>>>()
   const calls = new Map<string, { since: number; count: number }>()
