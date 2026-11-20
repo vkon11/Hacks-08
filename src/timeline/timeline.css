@@ -36,3 +36,28 @@
 .timeline-note{font-size:12px;line-height:1.5;color:var(--muted);margin-top:18px}
 
 @media (max-width:640px){.timeline-form{grid-template-columns:1fr}.timeline-page{padding-top:28px}}
+
+.track{margin:0 0 26px}
+.track-scroll{overflow-x:auto;padding-bottom:4px}
+.track-body{position:relative;min-width:620px;height:100px;margin:0 14px}
+.track-phases{position:absolute;inset:0 0 auto 0;height:30px}
+.phase{position:absolute;top:0;height:30px;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;border-radius:6px;transition:left .3s,width .3s}
+.phase-ready{background:#eef1ea;color:var(--muted)}
+.phase-sign{background:#d6e7e4;color:var(--teal)}
+.phase-move{background:#f7ecc8;color:#7a5600}
+.track-line{position:absolute;left:0;right:0;top:62px;height:2px;background:var(--line)}
+.track-month{position:absolute;top:-24px;transform:translateX(-1px);font-size:11px;color:var(--muted);border-left:1px solid var(--line);padding-left:4px;height:26px;line-height:1.1}
+.track-month b{display:block;font-size:10px;color:var(--ink)}
+.track-today{position:absolute;top:-4px;height:30px;border-left:2px dashed var(--ink);padding:16px 0 0 4px;font-size:11px;font-weight:700;color:var(--ink)}
+.track-dot{position:absolute;top:-10px;transform:translateX(-11px);display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;border:2px solid #fff;box-shadow:0 0 0 1px var(--teal);font-size:11px;font-weight:700;text-decoration:none;transition:left .3s}
+.track-dot.is-mine{background:#b28710;box-shadow:0 0 0 1px #b28710}
+.track-dot:hover,.track-dot:focus-visible{transform:translateX(-11px) scale(1.15)}
+.track-legend{list-style:none;counter-reset:marker;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+.track-legend li{counter-increment:marker;display:flex;align-items:center;gap:6px}
+.track-legend li::before{content:counter(marker);display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--teal);color:#fff;font-size:10px;font-weight:700}
+.track-legend li.is-mine::before{background:#b28710}
+.track-legend a{color:var(--ink);text-decoration:none}
+.track-legend a:hover{text-decoration:underline}
+.milestone{scroll-margin-top:16px}
+.milestone:target h2{color:var(--teal)}
+@media (prefers-reduced-motion:reduce){.phase,.track-dot{transition:none}}

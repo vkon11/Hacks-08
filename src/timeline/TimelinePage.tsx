@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, ArrowUpRight, BellRing, CalendarClock, Check } from 'lucide-react'
 import { buildTimeline, defaultMoveIn, isDate, nextKeyDate } from './timeline'
+import TimelineTrack from './TimelineTrack'
 import './timeline.css'
 
 const storageKey = 'ann-arbor-housing-board:v2:timeline'
@@ -91,12 +92,14 @@ export default function TimelinePage() {
         </p>
       )}
 
+      {milestones.length > 0 && <TimelineTrack milestones={milestones} today={today} />}
+
       {milestones.length === 0 ? (
         <p role="alert">Choose a move-in date to see your timeline.</p>
       ) : (
         <ol className="timeline">
           {milestones.map((m) => (
-            <li key={m.id} className={'milestone is-' + m.status}>
+            <li key={m.id} id={'step-' + m.id} className={'milestone is-' + m.status}>
               <span className="milestone-dot" aria-hidden="true">{m.status === 'done' && <Check size={12} />}</span>
               <div>
                 <p className="milestone-date">
