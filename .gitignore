@@ -13,3 +13,7 @@ data/firecrawl/
 # Generated Graphify artifacts
 graphify-out/
 .graphify/
+
+# Browser test output
+test-results/
+playwright-report/

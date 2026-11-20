@@ -5,11 +5,36 @@
   "description": "Explainable student housing recommendations for Ann Arbor",
   "type": "module",
   "scripts": {
-    "check": "node --check scripts/build-inventory.mjs && node --check scripts/extract-umich-listings.mjs && node --check scripts/firecrawl-discover.mjs && node --check scripts/scrape-housing.mjs",
+    "check": "tsc --noEmit",
     "scrape": "node scripts/scrape-housing.mjs",
-    "firecrawl": "node scripts/firecrawl-discover.mjs"
+    "firecrawl": "node scripts/firecrawl-discover.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "tsx --test tests/*.test.ts",
+    "test:e2e": "playwright test"
   },
   "engines": {
-    "node": ">=20"
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.76.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
   }
 }
