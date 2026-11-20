@@ -180,6 +180,19 @@ export default function Summary({
       <h1 tabIndex={-1}>Your housing brief is saved</h1>
       <div className="results-layout">
         <div className="results-main">
+          {loading && !result && (
+            <div className="results-loading" role="status">
+              <span className="spinner" aria-hidden="true" />
+              <div>
+                <p className="results-loading-title">Finding your finalists…</p>
+                <p>Checking current listings against your brief. This usually takes a few seconds.</p>
+              </div>
+              <div className="results-loading-cards" aria-hidden="true">
+                <span />
+                <span />
+              </div>
+            </div>
+          )}
           {result?.status === 'ready' && result.matches.length >= 2 && (
             <FinalRound matches={result.matches} revision={revision} />
           )}
@@ -189,7 +202,11 @@ export default function Summary({
               {TRAVEL_LABELS[setup.travelModes[0]]} to {setup.pin.label}
               {setup.travelModes[0] === 'bus' && ' · representative weekday transit estimate'}
             </p>
-            {loading && <p role="status">Checking current listings…</p>}
+            {loading && result && (
+              <p className="results-refreshing" role="status">
+                <span className="spinner is-small" aria-hidden="true" /> Refreshing your shortlist…
+              </p>
+            )}
             {error && (
               <p role="alert">
                 {error} {result && 'Showing your last saved results.'}
