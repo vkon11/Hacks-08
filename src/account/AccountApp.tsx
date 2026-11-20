@@ -12,9 +12,15 @@ export default function AccountApp() {
   const [busy, setBusy] = useState(false)
   const path = location.pathname.replace(/\/$/, '') || '/'
   const home = path === '/'
+  const questionnaire = path.startsWith('/preferences/')
   const authPage = path === '/login' || path === '/auth/callback'
   const user = session?.user
   const eligible = !!user?.email?.toLowerCase().endsWith('@umich.edu')
+
+  useEffect(() => {
+    if (home) document.title = 'Which Ann Arbor apartment fits the way you live? · Ann Arbor Housing Board'
+    else if (!questionnaire) document.title = (authPage ? 'Sign in' : 'Your dashboard') + ' · Ann Arbor Housing Board'
+  }, [home, questionnaire, authPage])
 
   useEffect(() => {
     if (!supabase) return
@@ -28,7 +34,7 @@ export default function AccountApp() {
     if (!ready || home) return
     if (authPage && eligible) location.replace('/dashboard')
     else if (!authPage && !eligible) location.replace('/login')
-  }, [ready, home, authPage, eligible])
+  }, [ready, home, questionnaire, authPage, eligible])
 
   async function signIn() {
     if (!supabase) return

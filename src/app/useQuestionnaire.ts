@@ -1,69 +1,131 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { completeRecord, draftFromProfile, firstIncomplete, freshRecord, loadRecord, saveRecord, type Draft, type GuestRecord, type Step } from '../model'
+import {
+  completeRecord,
+  firstIncomplete,
+  freshRecord,
+  loadRecord,
+  pendingIdeas,
+  saveRecord,
+  storageKey,
+  type Draft,
+  type HousingRecord,
+  type Step
+} from '../model'
 import { currentRoute, guardRoute, routePath, steps, type Route } from './routing'
+import type { MatchResult } from '../../server/matching'
 
-type Failure = 'read' | 'write' | 'complete' | null
-
-export function useQuestionnaire(accountId?: string) {
+export function useQuestionnaire(accountId: string) {
   const [initial] = useState(() => {
-    try { return { record: loadRecord(accountId), failure: null as Failure } }
-    catch { return { record: freshRecord(), failure: 'read' as Failure } }
+    try {
+      return { record: loadRecord(accountId), error: false }
+    } catch {
+      return { record: freshRecord(), error: true }
+    }
   })
   const [record, setRecord] = useState(initial.record)
   const live = useRef(record)
-  const [failure, setFailure] = useState<Failure>(initial.failure)
-  const [route, setRoute] = useState<Route>(() => guardRoute(currentRoute(), firstIncomplete(record.draft), !!record.completed))
-
-  const apply = useCallback((next: GuestRecord) => {
+  const [failure, setFailure] = useState<'read' | 'write' | 'complete' | null>(initial.error ? 'read' : null)
+  const [route, setRoute] = useState(() =>
+    guardRoute(currentRoute(), firstIncomplete(record.draft), !!record.completed)
+  )
+  const apply = useCallback((next: HousingRecord) => {
     live.current = next
     setRecord(next)
   }, [])
-
-  const storeDraft = useCallback((draft: Draft) => {
-    const next = { ...live.current, draft }
-    apply(next)
-    try {
-      saveRecord(next, accountId)
-      setFailure(null)
-    } catch { setFailure('write') }
-  }, [accountId, apply])
-
-  const navigate = useCallback((requested: Route, replace = false) => {
-    const { draft, completed } = live.current
-    const next = guardRoute(requested, firstIncomplete(draft), !!completed)
-    if (next !== 'home' && next !== 'saved') {
-      const switchingEdit = completed && draft.editing !== next
-      if (switchingEdit || draft.step !== next || !draft.started) {
-        const base = switchingEdit ? draftFromProfile(completed) : draft
-        storeDraft({ ...base, started: true, step: next, editing: completed ? next : null })
+  const store = useCallback(
+    (next: HousingRecord) => {
+      apply(next)
+      try {
+        saveRecord(next, accountId)
+        setFailure(null)
+      } catch {
+        setFailure('write')
       }
-    }
-    const path = routePath(next)
-    if (window.location.pathname !== path) {
-      if (replace) window.history.replaceState(null, '', path)
-      else window.history.pushState(null, '', path)
-    }
-    setRoute(next)
-  }, [storeDraft])
-
+    },
+    [accountId, apply]
+  )
+  const patch = useCallback(
+    (changes: Partial<Draft>) => {
+      const r = live.current
+      store({ ...r, draft: { ...r.draft, ...changes } })
+    },
+    [store]
+  )
+  const navigate = useCallback(
+    (requested: Route, replace = false) => {
+      const r = live.current
+      const next = guardRoute(requested, firstIncomplete(r.draft), !!r.completed)
+      if (
+        next !== 'home' &&
+        next !== 'saved' &&
+        (next !== r.draft.step || !r.draft.started || (r.completed && !r.draft.editing))
+      ) {
+        patch({ step: next, started: true, editing: !!r.completed })
+      }
+      if (window.location.pathname !== routePath(next))
+        window.history[replace ? 'replaceState' : 'pushState'](null, '', routePath(next))
+      setRoute(next)
+    },
+    [patch]
+  )
   useEffect(() => {
     const sync = () => navigate(currentRoute(), true)
     sync()
     window.addEventListener('popstate', sync)
     return () => window.removeEventListener('popstate', sync)
   }, [navigate])
-
-  function patch(patch: Partial<Draft>) {
-    storeDraft({ ...live.current.draft, ...patch })
+  useEffect(() => {
+    function syncAccount(event: StorageEvent) {
+      if (event.key !== storageKey(accountId)) return
+      try {
+        const nextRecord = loadRecord(accountId)
+        apply(nextRecord)
+        const next = guardRoute(currentRoute(), firstIncomplete(nextRecord.draft), !!nextRecord.completed)
+        if (window.location.pathname !== routePath(next))
+          window.history.replaceState(null, '', routePath(next))
+        setRoute(next)
+      } catch {
+        setFailure('read')
+      }
+    }
+    window.addEventListener('storage', syncAccount)
+    return () => window.removeEventListener('storage', syncAccount)
+  }, [accountId, apply])
+  function edit(step: Step) {
+    const r = live.current
+    if (r.completed && !r.draft.editing) patch({ ...r.completed.brief, editing: true })
+    navigate(step)
   }
-
-  function finish(draft = live.current.draft) {
-    const working = { ...live.current, draft }
-    const next = completeRecord(working)
+  function changeSetup(changes: Partial<Draft>) {
+    const d = live.current.draft
+    const newMode = changes.rankedTravelModes
+    if (newMode && newMode[0] !== d.rankedTravelModes[0] && d.choices.commute) {
+      const { commute: _, ...choices } = d.choices
+      changes = { ...changes, choices, essentialsConfirmed: false }
+    }
+    patch({ ...changes, checkpoint: false, accepted: false })
+  }
+  function confirmStep() {
+    if (route === 'home' || route === 'saved') return
+    const next = steps[steps.indexOf(route) + 1]
+    if (!next) return
+    patch(
+      route === 'budget'
+        ? { budgetConfirmed: true }
+        : route === 'location'
+          ? { locationConfirmed: true }
+          : { essentialsConfirmed: true }
+    )
+    navigate(next)
+  }
+  function finish() {
+    const current = live.current
+    if (firstIncomplete(current.draft) !== 'builder' || !current.draft.checkpoint || pendingIdeas(current.draft))
+      return
+    const next = completeRecord(current)
     try {
       saveRecord(next, accountId)
     } catch {
-      apply(working)
       setFailure('complete')
       return
     }
@@ -71,24 +133,13 @@ export function useQuestionnaire(accountId?: string) {
     setFailure(null)
     navigate('saved')
   }
-
-  function editSection(step: Step) {
-    const { draft, completed } = live.current
-    if (completed && draft.editing !== step) {
-      storeDraft({ ...draftFromProfile(completed), step, editing: step })
-    }
-    navigate(step)
-  }
-
-  function confirmStep() {
-    const current = live.current.draft
-    const draft = { ...current, ...(route === 'budget' ? { budgetConfirmed: true } : { locationConfirmed: true }) }
-    if (current.editing) return finish(draft)
-    const nextStep = route === 'budget' ? 'location' : 'board'
-    storeDraft({ ...draft, step: nextStep })
-    navigate(nextStep)
-  }
-
+  const setResult = useCallback(
+    (revision: string, result: MatchResult) => {
+      const r = live.current
+      if (r.completed?.revision === revision) store({ ...r, completed: { ...r.completed, result } })
+    },
+    [store]
+  )
   function retry() {
     if (failure === 'complete') return finish()
     if (failure === 'read') {
@@ -96,14 +147,23 @@ export function useQuestionnaire(accountId?: string) {
         apply(loadRecord(accountId))
         setFailure(null)
         navigate(currentRoute(), true)
-      } catch { setFailure('read') }
-      return
-    }
-    storeDraft(live.current.draft)
+      } catch {
+        setFailure('read')
+      }
+    } else store(live.current)
   }
-
-  const resume = record.completed && !record.draft.editing
-    ? 'saved' : guardRoute(record.draft.step, firstIncomplete(record.draft), !!record.completed)
-  const back: Route = record.draft.editing ? 'saved' : steps[steps.indexOf(record.draft.step) - 1] ?? 'home'
-  return { record, route, navigate, editSection, patch, confirmStep, finish, retry, failure, resume, back }
+  return {
+    record,
+    live,
+    route,
+    navigate,
+    edit,
+    changeSetup,
+    patch,
+    confirmStep,
+    finish,
+    setResult,
+    failure,
+    retry
+  }
 }

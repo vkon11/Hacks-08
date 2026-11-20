@@ -1,54 +1,65 @@
-import { isPlacementList } from './board.ts'
-import { isCompleteRanking, isTravelPrefix, parseBudgetCents } from './inputs.ts'
-import { freshRecord, isObject, isCompletedProfile, draftFromProfile, validLocation } from './profile.ts'
-import type { Draft, GuestRecord, Step } from './types.ts'
+import {
+  draftSchema,
+  freshRecord,
+  pendingIdeas,
+  firstIncomplete,
+  setupFromDraft,
+  type HousingRecord,
+  type Profile
+} from './profile'
+import { setupSchema } from '../ideal/contracts'
 
-type ReadableStorage = Pick<Storage, 'getItem'>
-type WritableStorage = Pick<Storage, 'setItem'>
+import { storageKey } from './storageKeys'
+export { storageKey, clearLegacyProfiles } from './storageKeys'
+import { matchResultSchema } from '../ideal/matchResult'
 
-function storageKey(accountId?: string): string {
-  return 'ann-arbor-housing-board:v1:' + (accountId ? 'account:' + accountId : 'guest')
+function readProfile(raw: Profile | null): Profile | null {
+  if (
+    !raw ||
+    raw.schemaVersion !== 2 ||
+    typeof raw.revision !== 'string' ||
+    !Number.isFinite(Date.parse(raw.updatedAt))
+  )
+    return null
+  const parsed = draftSchema.safeParse(raw.brief)
+  const setup = setupSchema.safeParse(raw.setup)
+  if (
+    !parsed.success ||
+    !setup.success ||
+    !parsed.data.accepted ||
+    pendingIdeas(parsed.data) ||
+    firstIncomplete(parsed.data) !== 'builder'
+  )
+    return null
+  const rebuilt = setupFromDraft(parsed.data)
+  if (JSON.stringify(setup.data) !== JSON.stringify(rebuilt)) return null
+  const result = matchResultSchema.safeParse(raw.result)
+  return { ...raw, brief: parsed.data, setup: rebuilt, result: result.success ? result.data : null }
 }
-
-function isStep(value: unknown): value is Step {
-  return value === 'budget' || value === 'location' || value === 'board'
-}
-
-function restoreDraft(value: unknown, base: Draft): Draft {
-  if (!isObject(value) || typeof value.profileId !== 'string' || !value.profileId) return base
-  const budgetInput = typeof value.budgetInput === 'string' ? value.budgetInput : base.budgetInput
-  const idealLocation = validLocation(value.idealLocation) ? value.idealLocation : null
-  const rankedTravelModes = isTravelPrefix(value.rankedTravelModes) ? value.rankedTravelModes : []
-  return {
-    profileId: value.profileId,
-    started: value.started === true, step: isStep(value.step) ? value.step : base.step,
-    editing: isStep(value.editing) ? value.editing : null,
-    budgetInput, budgetConfirmed: value.budgetConfirmed === true && parseBudgetCents(budgetInput) !== null,
-    idealLocation, rankedTravelModes,
-    locationConfirmed: value.locationConfirmed === true && idealLocation !== null && isCompleteRanking(rankedTravelModes),
-    placements: isPlacementList(value.placements) ? value.placements : base.placements,
-  }
-}
-
-/** Reading and writing can throw if the browser denies access. The UI retains its working copy. */
-export function loadRecord(accountId?: string, storage: ReadableStorage = localStorage): GuestRecord {
+export function loadRecord(
+  accountId: string,
+  storage: Pick<Storage, 'getItem'> = localStorage
+): HousingRecord {
   const json = storage.getItem(storageKey(accountId))
   if (!json) return freshRecord()
-  let data: unknown
   try {
-    data = JSON.parse(json)
+    const value = JSON.parse(json)
+    if (value?.version !== 2) return freshRecord()
+    const completed = readProfile(value.completed)
+    const draft = draftSchema.safeParse(value.draft)
+    return {
+      version: 2,
+      completed,
+      draft: draft.success ? draft.data : (completed?.brief ?? freshRecord().draft)
+    }
   } catch {
     return freshRecord()
   }
-  if (!isObject(data) || data.version !== 1) return freshRecord()
-  const completed = isCompletedProfile(data.completed) ? data.completed : null
-  const base = completed ? draftFromProfile(completed) : freshRecord().draft
-  const draft = restoreDraft(data.draft, base)
-  if (completed && draft.profileId !== completed.profileId) return { version: 1, draft: base, completed }
-  return { version: 1, draft, completed }
 }
-
-/** A single storage write commits draft and completed profile together. */
-export function saveRecord(record: GuestRecord, accountId?: string, storage: WritableStorage = localStorage): void {
+export function saveRecord(
+  record: HousingRecord,
+  accountId: string,
+  storage: Pick<Storage, 'setItem'> = localStorage
+) {
   storage.setItem(storageKey(accountId), JSON.stringify(record))
 }

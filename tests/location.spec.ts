@@ -72,7 +72,7 @@ test('blocked tiles allow coordinate entry, partial ranking resumes and both inp
   await page.getByRole('button', { name: 'Move up' }).click()
   await expect(page.getByRole('button', { name: '1 Walk', exact: true })).toBeVisible()
   await next.click()
-  await expect(page).toHaveURL(/\/preferences\/board$/)
+  await expect(page).toHaveURL(/\/preferences\/essentials$/)
 })
 
 test('search drops and restores a labeled pin for campus and online places', async ({ page }) => {

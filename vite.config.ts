@@ -1,4 +1,5 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
+import { createHousingApi } from './server/api.ts'
 import react from '@vitejs/plugin-react'
 import { createHash } from 'node:crypto'
 
@@ -43,4 +44,11 @@ self.addEventListener('fetch', event => {
   }
 }
 
-export default defineConfig({ envPrefix: ['VITE_', 'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'], plugins: [react(), offlineShell()] })
+export default defineConfig(({mode,isSsrBuild}) => {
+  const env = {...loadEnv(mode,process.cwd(),''),...process.env}
+  const api:Plugin = { name:'housing-api',
+    configureServer(server) {server.middlewares.use(createHousingApi(env))},
+    configurePreviewServer(server) {server.middlewares.use(createHousingApi(env))},
+  }
+  return {envPrefix:['VITE_','NEXT_PUBLIC_SUPABASE_URL','NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'],plugins:[react(),api,...(isSsrBuild ? [] : [offlineShell()])]}
+})
