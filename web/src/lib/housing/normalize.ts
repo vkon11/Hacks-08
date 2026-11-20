@@ -13,8 +13,12 @@ const ABBREV: Record<string, string> = {
 
 /** Canonical address key for dedupe. Fixes the U-M export's missing space ("AveAnn Arbor"). ZIP is dropped: sources
  *  include it inconsistently, and within one city it adds nothing to matching. */
+// Trailing country and invisible characters appear in some U-M listing addresses ("..., MI 48104, USA", BOM).
+const cleanAddress = (raw: string) =>
+  raw.replace(/[﻿​]/g, "").replace(/,?\s*(united states( of america)?|usa|us)\.?\s*$/i, "").trim();
+
 export function normalizeAddress(raw: string): string {
-  return raw
+  return cleanAddress(raw)
     .replace(/([a-z])(Ann Arbor)/, "$1 $2")
     .toLowerCase()
     .replace(/[.,#]/g, " ")
@@ -29,7 +33,7 @@ export function normalizeAddress(raw: string): string {
 }
 
 export function parseAddress(raw: string): { street: string; zip: string | null } {
-  const fixed = raw.replace(/([a-z])(Ann Arbor)/, "$1 $2");
+  const fixed = cleanAddress(raw).replace(/([a-z])(Ann Arbor)/, "$1 $2");
   const street = fixed.split(/,?\s*Ann Arbor/i)[0].trim();
   const zip = fixed.match(/\b(\d{5})(?:-\d{4})?\s*$/)?.[1] ?? null;
   return { street, zip };

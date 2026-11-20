@@ -20,7 +20,7 @@ export async function connect(url = process.env.DATABASE_URL): Promise<Db> {
       close: () => pg.close(),
     };
   }
-  const sql = postgres(url, { max: 4, prepare: false, idle_timeout: 20 });
+  const sql = postgres(url, { max: 4, prepare: false, idle_timeout: 20, onnotice: () => {} });
   return {
     query: async <T>(text: string, params: unknown[] = []) =>
       (await sql.unsafe(text, params as postgres.ParameterOrJSON<never>[])) as unknown as T[],

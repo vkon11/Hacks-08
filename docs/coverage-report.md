@@ -1,6 +1,6 @@
 # 61-factor coverage report
 
-Generated 2026-11-20T08:19:33.032Z from the housing database. Counts are properties per resolved state
+Generated 2026-11-20T08:54:23.307Z from the housing database. Counts are properties per resolved state
 (`property_factor_status` view). **Resolved** = TRUE, FALSE, or a known value (numeric/category) from evidence at a scope allowed to confirm the factor.
 **Building claim only** = a building-level TRUE exists, but the factor needs unit-level evidence, so it stays UNKNOWN.
 
@@ -181,7 +181,7 @@ Generated 2026-11-20T08:19:33.032Z from the housing database. Counts are propert
 |---|---|---|---|---|---|---|---|---|---|
 | Foundry Lofts | completed | 8 | 0 | 19 | 0 | 29 | 10 | 5 | 1 |
 | Haven On Geddes | completed | 4 | 0 | 9 | 1 | 12 | 2 | 2 | 0 |
-| Varsity | completed | 7 | 5 | 18 | 0 | 30 | 8 | 9 | 0 |
+| Varsity | completed | 7 | 0 | 18 | 0 | 30 | 8 | 9 | 0 |
 | Sterling Arbor Blu | completed | 8 | 0 | 15 | 0 | 31 | 16 | 12 | 7 |
 | Vic Village | failed | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Six11 | completed | 8 | 0 | 20 | 1 | 41 | 20 | 26 | 0 |

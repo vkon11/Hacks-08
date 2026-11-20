@@ -66,6 +66,12 @@ const FEE_KEY: Record<string, string> = {
   furniture: "furniture_fee", sublet: "sublet_fee", other: "other_fee",
 };
 
+/** The site's own name for the property, if the extractor found one that actually appears on the page. */
+const siteName = (r: { markdown: string; json: Row }, t: Target) => {
+  const n = String((r.json.property as Row | undefined)?.name ?? "").trim();
+  return n && n.length <= 60 && normText(r.markdown).includes(normText(n)) ? n : t.name;
+};
+
 /** Find the property this site describes: by extracted address, else the only property using this domain, else create. */
 async function resolveProperty(imp: Importer, db: Db, t: Target, extracted: Row | undefined): Promise<string> {
   const addr = (extracted?.street_address as string) || t.address;
@@ -123,7 +129,12 @@ export async function scrapeTarget(db: Db, fc: Fetcher, t: Target, opts: { maxPa
           stats.errors.push(`${page.url}: blocked by bot protection (not bypassed)`);
           break;
         }
-        propertyId ??= await resolveProperty(imp, db, t, r.json.property as Row);
+        if (!propertyId) {
+          propertyId = await resolveProperty(imp, db, t, r.json.property as Row);
+          // Listing sources often name a building by its street address; the official site's name is better.
+          await db.query(`update properties set name = $2, official_website = coalesce(official_website, $3)
+                          where id = $1 and (name = street or name is null)`, [propertyId, siteName(r, t), t.website]);
+        }
         await storePage(imp, propertyId, t, page.type, page.url, r, stats);
         done.add(page.url);
         await save("running");
