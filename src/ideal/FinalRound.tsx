@@ -1,40 +1,57 @@
 import { useEffect, useMemo, useState } from 'react'
-import { RotateCcw, Trophy, Undo2 } from 'lucide-react'
+import { ArrowUpRight, Image, RotateCcw, Trophy, Undo2 } from 'lucide-react'
 import type { MatchResult } from '../../server/matching'
-import { firstPassLength, loadPicks, nextPair, ratings, savePicks, standings, totalPairs, type Choice } from './elo'
+import { firstPassLength, loadPicks, nextPair, savePicks, standings, totalPairs, type Choice } from './elo'
 import './final-round.css'
 
 type Match = MatchResult['matches'][number]
 
 const money = (cents: number) =>
   (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-const matchScore = (m: Match) => (m.score === null ? '—' : String(Math.round(m.score * 100)))
+
+/** Reserved space for a listing photo. The listing data has no photos yet. */
+function PhotoSlot({ m, large }: { m: Match; large?: boolean }) {
+  return (
+    <div className={'photo-slot' + (large ? ' is-large' : '')} role="img" aria-label={`Photo of ${m.buildingName} coming soon`}>
+      <Image size={large ? 28 : 22} aria-hidden="true" />
+      <span>Photo coming soon</span>
+    </div>
+  )
+}
 
 function Contender({ m, onPick }: { m: Match; onPick: () => void }) {
   return (
     <article className="contender">
-      <h4>{m.buildingName}</h4>
+      <PhotoSlot m={m} />
+      <h3>{m.buildingName}</h3>
       <p className="contender-layout">{m.layoutName} · {m.optionName}</p>
       <dl>
         <div><dt>Rent</dt><dd><strong>{money(m.monthlyCents)}</strong> per person / month</dd></div>
         <div><dt>Trip to your pin</dt><dd>{m.commuteMinutes === null ? 'Not verified' : m.commuteMinutes + ' min'}</dd></div>
-        <div><dt>Match score</dt><dd>{matchScore(m)}</dd></div>
-        <div><dt>Available</dt><dd>{m.availableFrom ?? 'Start date unlisted'}</dd></div>
       </dl>
-      {m.reasons.length > 0 && <ul className="contender-reasons">{m.reasons.slice(0, 3).map(r => <li key={r}>{r}</li>)}</ul>}
-      {m.unknowns.length > 0 && <p className="contender-unknowns">To confirm · {m.unknowns.join(' · ')}</p>}
+      <details className="contender-more">
+        <summary>More details</summary>
+        <dl>
+          <div><dt>Available</dt><dd>{m.availableFrom ?? 'Start date unlisted'}</dd></div>
+          <div><dt>Address</dt><dd>{m.address}</dd></div>
+        </dl>
+        {m.reasons.length > 0 && <ul className="contender-reasons">{m.reasons.map(r => <li key={r}>{r}</li>)}</ul>}
+        {m.unknowns.length > 0 && <p className="contender-unknowns">To confirm · {m.unknowns.join(' · ')}</p>}
+        <a href={m.sourceUrl} target="_blank" rel="noreferrer">Offer source <ArrowUpRight size={13} /></a>
+      </details>
       <button className="btn-primary contender-pick" onClick={onPick}>Pick {m.buildingName}</button>
     </article>
   )
 }
 
-/** Head-to-head picks between the shortlisted floor plans. Elo decides the final order. */
+/** Head-to-head picks between the shortlisted floor plans. Elo decides the order; only the order is shown. */
 export default function FinalRound({ matches, revision }: { matches: Match[]; revision: string }) {
   const ids = useMemo(() => matches.map(m => m.layoutId), [matches])
   const byId = useMemo(() => new Map(matches.map(m => [m.layoutId, m])), [matches])
   const [picks, setPicks] = useState<Choice[]>(() => loadPicks(revision, ids))
   const [announcement, setAnnouncement] = useState('')
-  useEffect(() => setPicks(loadPicks(revision, ids)), [revision, ids])
+  const [finished, setFinished] = useState(false)
+  useEffect(() => { setPicks(loadPicks(revision, ids)); setFinished(false) }, [revision, ids])
 
   const update = (next: Choice[], message: string) => {
     setPicks(next)
@@ -45,34 +62,31 @@ export default function FinalRound({ matches, revision }: { matches: Match[]; re
 
   const pair = nextPair(ids, picks)
   const table = standings(ids, picks)
-  const elo = ratings(ids, picks)
-  const record = (id: string) => [picks.filter(p => p.winner === id).length, picks.filter(p => p.loser === id).length]
   const firstPass = firstPassLength(ids.length)
   const leader = byId.get(table[0].id)!
   const pick = (winner: string, loser: string) => {
-    const w = byId.get(winner)!
     const next = [...picks, { winner, loser }]
     const top = byId.get(standings(ids, next)[0].id)!
-    update(next, `${w.buildingName} moves on. Current favorite: ${top.buildingName}.`)
+    update(next, `${byId.get(winner)!.buildingName} moves on. Current favorite: ${top.buildingName}.`)
   }
 
   return (
     <section className="final-round" aria-labelledby="final-round-title">
-      <h3 id="final-round-title">Final round</h3>
-      <p className="final-round-intro">
-        Compare two at a time and pick the one you’d rather live in. The winner moves on to the next finalist.
-        Every pick updates the ratings, so you can keep comparing until the order feels right.
-      </p>
+      <h2 id="final-round-title">Final round</h2>
+      <p className="final-round-intro">Pick the one you’d rather live in. The winner moves on to the next finalist.</p>
 
-      {pair ? (
+      {pair && !finished ? (
         <>
           <p className="final-round-progress">
             {picks.length < firstPass
-              ? `Matchup ${picks.length + 1} of ${firstPass} · every finalist plays once`
-              : `Refining · ${totalPairs(ids.length) - picks.length} matchups left · stop whenever you’re happy`}
+              ? `Matchup ${picks.length + 1} of ${firstPass}`
+              : `Keep comparing · ${totalPairs(ids.length) - picks.length} matchups left · stop whenever you’re happy`}
           </p>
           {picks.length >= firstPass && (
-            <p className="final-round-leader"><Trophy size={16} aria-hidden="true" /> Current favorite · <strong>{leader.buildingName}</strong></p>
+            <p className="final-round-leader">
+              <Trophy size={16} aria-hidden="true" /> Current favorite · <strong>{leader.buildingName}</strong>
+              <button className="text-button" onClick={() => { setFinished(true); setAnnouncement(`Your pick: ${leader.buildingName}.`) }}>Choose my favorite</button>
+            </p>
           )}
           <div className="matchup">
             <Contender m={byId.get(pair[0])!} onPick={() => pick(pair[0], pair[1])} />
@@ -81,36 +95,39 @@ export default function FinalRound({ matches, revision }: { matches: Match[]; re
           </div>
         </>
       ) : (
-        <p className="final-round-leader"><Trophy size={16} aria-hidden="true" /> You compared every pair. Your pick · <strong>{leader.buildingName}</strong></p>
+        <article className="winner">
+          <PhotoSlot m={leader} large />
+          <div className="winner-body">
+            <p className="winner-label"><Trophy size={16} aria-hidden="true" /> Your pick</p>
+            <h3>{leader.buildingName}</h3>
+            <p className="contender-layout">{leader.layoutName} · {leader.optionName} · {leader.address}</p>
+            <p className="winner-rent"><strong>{money(leader.monthlyCents)}</strong> per person / month
+              {leader.commuteMinutes !== null && <> · {leader.commuteMinutes} min to your pin</>}</p>
+            <a href={leader.sourceUrl} target="_blank" rel="noreferrer">View the listing <ArrowUpRight size={13} /></a>
+            {pair && <button className="text-button" onClick={() => setFinished(false)}>Keep comparing</button>}
+          </div>
+        </article>
       )}
 
       <div className="final-round-actions">
         <button className="text-button" disabled={!picks.length}
-          onClick={() => update(picks.slice(0, -1), 'Last pick undone.')}><Undo2 size={15} aria-hidden="true" /> Undo last pick</button>
+          onClick={() => { setFinished(false); update(picks.slice(0, -1), 'Last pick undone.') }}><Undo2 size={15} aria-hidden="true" /> Undo last pick</button>
         <button className="text-button" disabled={!picks.length}
-          onClick={() => update([], 'Final round restarted.')}><RotateCcw size={15} aria-hidden="true" /> Start over</button>
+          onClick={() => { setFinished(false); update([], 'Final round restarted.') }}><RotateCcw size={15} aria-hidden="true" /> Start over</button>
       </div>
 
-      <table className="standings">
-        <caption>Standings</caption>
-        <thead><tr><th scope="col">#</th><th scope="col">Floor plan</th><th scope="col">Rating</th><th scope="col">W–L</th><th scope="col">Match score</th></tr></thead>
-        <tbody>
-          {table.map(({ id }, i) => {
-            const m = byId.get(id)!
-            const [w, l] = record(id)
-            return (
-              <tr key={id} className={i === 0 && picks.length ? 'is-leader' : undefined}>
-                <td>{i + 1}</td>
-                <td><strong>{m.buildingName}</strong><span>{m.layoutName} · {money(m.monthlyCents)}</span></td>
-                <td>{Math.round(elo.get(id)!)}</td>
-                <td>{w}–{l}</td>
-                <td>{matchScore(m)}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      <p className="final-round-note">Ratings use Elo: everyone starts at 1500, and beating a higher-rated finalist earns more points. Match score is the algorithm’s fit to your brief.</p>
+      <h3 className="standings-title">Standings</h3>
+      <ol className="standings">
+        {table.map(({ id }, i) => {
+          const m = byId.get(id)!
+          return (
+            <li key={id} className={i === 0 && picks.length ? 'is-leader' : undefined}>
+              <strong>{m.buildingName}</strong>
+              <span>{m.layoutName} · {money(m.monthlyCents)}</span>
+            </li>
+          )
+        })}
+      </ol>
       <p className="visually-hidden" aria-live="polite">{announcement}</p>
     </section>
   )

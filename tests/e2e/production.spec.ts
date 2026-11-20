@@ -56,6 +56,7 @@ test('production server returns six floor plans and recalculates after a budget 
     await submitSetup()
     await expect(page.locator('.shortlist>li')).toHaveCount(6)
     await expect(page.locator('.shortlist>li').first()).toContainText('$1,090 per person')
+    await page.locator('.shortlist>li .shortlist-summary').first().click()
     await page.locator('.shortlist>li').first().getByText('Sources for this match').click()
     await expect(
       page

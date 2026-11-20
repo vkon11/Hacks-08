@@ -174,3 +174,22 @@ h1:focus{outline:none}
 .question-essentials,.question-builder{max-width:1160px}
 @media(max-width:730px){.brief-preview{padding:11px 13px;bottom:5%}.brief-preview blockquote{margin:5px 0 8px}.preview-nodes span{font-size:10px;padding:3px 5px}}
 .shortlist{padding-inline-start:1.65em}.shortlist>li{padding:12px 0;border-bottom:1px solid var(--line)}.shortlist h3{font-size:19px}.shortlist h3 span{font-size:15px}.shortlist p{margin:.4em 0}.summary-section details{padding-block:8px}.summary-section summary{cursor:pointer;font-weight:600}
+.results-page{max-width:1180px}
+.results-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.inputs-toggle{display:inline-flex;align-items:center;gap:6px}
+.results-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;align-items:start}
+.results-page.has-inputs .results-layout{grid-template-columns:minmax(0,1fr) 320px}
+.inputs-sidebar{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 16px 10px}
+.inputs-sidebar .saved-next{font-size:13px;color:var(--muted);margin:10px 0}
+.inputs-sidebar .summary-heading h2{font-size:18px;min-height:36px}
+.inputs-sidebar .summary-section{padding:10px 0 12px}
+.inputs-sidebar .summary-section>p,.inputs-sidebar li{font-size:14px}
+.shortlist-summary{display:flex;align-items:center;gap:12px;list-style:none;cursor:pointer}
+.shortlist-summary::-webkit-details-marker{display:none}
+.shortlist-summary h3{flex:1;margin:0}
+.shortlist-price{font-weight:650;white-space:nowrap}
+.shortlist-summary svg{flex:none;color:var(--teal);transition:transform .15s}
+.shortlist details[open]>.shortlist-summary svg{transform:rotate(180deg)}
+@media (max-width:900px){.results-page.has-inputs .results-layout{grid-template-columns:minmax(0,1fr)}.inputs-sidebar{position:static;max-height:none}}
+@media (prefers-reduced-motion:reduce){.shortlist-summary svg{transition:none}}
+.inputs-sidebar .summary-heading{flex-direction:column;align-items:flex-start;gap:0}.inputs-sidebar .summary-heading h2{min-height:0;margin-top:4px}.inputs-sidebar .edit-link{min-height:32px;font-size:13px}
