@@ -6,6 +6,7 @@ import './final-round.css'
 
 type Match = MatchResult['matches'][number]
 
+const estimated = (m: Match) => (m.routeBasis?.startsWith('Estimate') ? ' (estimate)' : '')
 const money = (cents: number) =>
   (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
@@ -27,7 +28,7 @@ function Contender({ m, onPick }: { m: Match; onPick: () => void }) {
       <p className="contender-layout">{m.layoutName} · {m.optionName}</p>
       <dl>
         <div><dt>Rent</dt><dd><strong>{money(m.monthlyCents)}</strong> per person / month</dd></div>
-        <div><dt>Trip to your pin</dt><dd>{m.commuteMinutes === null ? 'Not verified' : m.commuteMinutes + ' min'}</dd></div>
+        <div><dt>Trip to your pin</dt><dd>{m.commuteMinutes === null ? 'Not verified' : m.commuteMinutes + ' min' + estimated(m)}</dd></div>
       </dl>
       <details className="contender-more">
         <summary>More details</summary>
@@ -102,7 +103,7 @@ export default function FinalRound({ matches, revision }: { matches: Match[]; re
             <h3>{leader.buildingName}</h3>
             <p className="contender-layout">{leader.layoutName} · {leader.optionName} · {leader.address}</p>
             <p className="winner-rent"><strong>{money(leader.monthlyCents)}</strong> per person / month
-              {leader.commuteMinutes !== null && <> · {leader.commuteMinutes} min to your pin</>}</p>
+              {leader.commuteMinutes !== null && <> · {leader.commuteMinutes} min to your pin{estimated(leader)}</>}</p>
             <a href={leader.sourceUrl} target="_blank" rel="noreferrer">View the listing <ArrowUpRight size={13} /></a>
             {pair && <button className="text-button" onClick={() => setFinished(false)}>Keep comparing</button>}
           </div>
