@@ -12,6 +12,9 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+-- New projects don't auto-grant table access to API roles. Signed-in users only; RLS limits them to their own row.
+grant select, insert, update on public.profiles to authenticated;
+
 create policy "read own profile" on public.profiles
   for select to authenticated using ((select auth.uid()) = id);
 
