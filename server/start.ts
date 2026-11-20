@@ -31,7 +31,7 @@ const server = createServer(async (req, res) => {
     }
     const pathname = decodeURIComponent(new URL(req.url || '/', 'http://localhost').pathname)
     const shell =
-      ['/', '/login', '/auth/callback', '/dashboard'].includes(pathname.replace(/\/$/, '') || '/') ||
+      ['/', '/login', '/auth/callback', '/dashboard', '/timeline'].includes(pathname.replace(/\/$/, '') || '/') ||
       pathname.startsWith('/preferences/')
     const file = resolve(dist, shell ? 'index.html' : '.' + pathname)
     if (!file.startsWith(dist + sep) || !(await stat(file)).isFile()) {

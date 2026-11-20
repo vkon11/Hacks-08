@@ -205,3 +205,4 @@ h1:focus{outline:none}
 @keyframes results-shimmer{to{background-position:-200% 0}}
 @media (max-width:640px){.results-loading-cards{grid-template-columns:1fr}.results-loading-cards span{height:140px}}
 @media (prefers-reduced-motion:reduce){.spinner,.results-loading-cards span{animation:none}}
+.hero-timeline{margin-top:10px;width:100%;gap:10px}

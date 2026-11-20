@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import Home from '../app/Home'
 const Journey = lazy(() => import('../app/App'))
 const Dashboard = lazy(() => import('./Dashboard'))
+const TimelinePage = lazy(() => import('../timeline/TimelinePage'))
 import { supabase } from './client'
 
 export default function AccountApp() {
@@ -12,6 +13,7 @@ export default function AccountApp() {
   const [busy, setBusy] = useState(false)
   const path = location.pathname.replace(/\/$/, '') || '/'
   const home = path === '/'
+  const timeline = path === '/timeline' // public, like home
   const questionnaire = path.startsWith('/preferences/')
   const authPage = path === '/login' || path === '/auth/callback'
   const user = session?.user
@@ -19,8 +21,8 @@ export default function AccountApp() {
 
   useEffect(() => {
     if (home) document.title = 'Which Ann Arbor apartment fits the way you live? · Ann Arbor Housing Board'
-    else if (!questionnaire) document.title = (authPage ? 'Sign in' : 'Your dashboard') + ' · Ann Arbor Housing Board'
-  }, [home, questionnaire, authPage])
+    else if (!questionnaire && !timeline) document.title = (authPage ? 'Sign in' : 'Your dashboard') + ' · Ann Arbor Housing Board'
+  }, [home, timeline, questionnaire, authPage])
 
   useEffect(() => {
     if (!supabase) return
@@ -31,10 +33,10 @@ export default function AccountApp() {
     return () => data.subscription.unsubscribe()
   }, [])
   useEffect(() => {
-    if (!ready || home) return
+    if (!ready || home || timeline) return
     if (authPage && eligible) location.replace('/dashboard')
     else if (!authPage && !eligible) location.replace('/login')
-  }, [ready, home, questionnaire, authPage, eligible])
+  }, [ready, home, timeline, questionnaire, authPage, eligible])
 
   async function signIn() {
     if (!supabase) return
@@ -64,7 +66,7 @@ export default function AccountApp() {
       </nav></div></header>
     {error && <p className="storage-error" role="alert">{error}</p>}
     <Suspense fallback={<p className="summary view" role="status">Loading…</p>}>
-    {home ? <Home signedIn={eligible} /> : !ready ? <main className="summary view" role="status">Loading your account…</main>
+    {home ? <Home signedIn={eligible} /> : timeline ? <TimelinePage /> : !ready ? <main className="summary view" role="status">Loading your account…</main>
     : authPage ? <main className="summary view"><h1>Sign in or create an account</h1>
       <p>Use your University of Michigan Google account to save your preferences and see housing recommendations.</p>
       {session && !eligible && <p role="alert">Choose your @umich.edu Google account to continue.</p>}

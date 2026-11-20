@@ -1,4 +1,4 @@
-import { ArrowRight, Check, GitBranch, Layers2, MapPin, Wallet, type LucideIcon } from 'lucide-react'
+import { ArrowRight, CalendarClock, Check, GitBranch, Layers2, MapPin, Wallet, type LucideIcon } from 'lucide-react'
 import campusMap from '../assets/central-campus.svg'
 
 function MapSample() {
@@ -104,6 +104,10 @@ export default function Home({ signedIn }: { signedIn: boolean }) {
           <a className="btn-primary hero-action" href={signedIn ? '/dashboard' : '/login'}>
             Start questionnaire
             <ArrowRight size={19} />
+          </a>
+          <a className="btn-secondary hero-timeline" href="/timeline">
+            <CalendarClock size={18} aria-hidden="true" />
+            See your leasing timeline
           </a>
           {signedIn && (
             <a className="dashboard-return text-button" href="/dashboard">
