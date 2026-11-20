@@ -253,6 +253,8 @@ select
      and bool_or(a.value_state = 'false' and a.scope = any(f.confirm_scopes)) then 'conflict'
     when bool_or(a.value_state = 'true'  and a.scope = any(f.confirm_scopes)) then 'true'
     when bool_or(a.value_state = 'false' and a.scope = any(f.confirm_scopes)) then 'false'
+    -- Numeric and categorical factors (square feet, laundry location) resolve to 'known' when a value exists.
+    when bool_or((a.value_numeric is not null or a.value_text is not null) and a.scope = any(f.confirm_scopes)) then 'known'
     else 'unknown'
   end as state,
   coalesce(bool_or(a.value_state = 'true' and not (a.scope = any(f.confirm_scopes))), false) as building_claim,

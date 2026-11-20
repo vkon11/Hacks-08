@@ -11,7 +11,8 @@ const ABBREV: Record<string, string> = {
   lane: "ln", circle: "cir", parkway: "pkwy", terrace: "ter", north: "n", south: "s", east: "e", west: "w",
 };
 
-/** Canonical address key for dedupe. Fixes the U-M export's missing space ("AveAnn Arbor"). */
+/** Canonical address key for dedupe. Fixes the U-M export's missing space ("AveAnn Arbor"). ZIP is dropped: sources
+ *  include it inconsistently, and within one city it adds nothing to matching. */
 export function normalizeAddress(raw: string): string {
   return raw
     .replace(/([a-z])(Ann Arbor)/, "$1 $2")
@@ -23,6 +24,7 @@ export function normalizeAddress(raw: string): string {
     .map((w) => ABBREV[w] ?? w)
     .join(" ")
     .replace(/\b(mi|michigan)\b/, "mi")
+    .replace(/\s*\b\d{5}(-\d{4})?$/, "")
     .trim();
 }
 

@@ -98,8 +98,17 @@ export async function scrapeTarget(db: Db, fc: Fetcher, t: Target, opts: { maxPa
     [jobId, status, JSON.stringify({ urls_done: [...done], ...stats }), stats.errors.join("\n").slice(0, 4000) || null]);
 
   try {
-    const links = await fc.map(t.website);
-    const pages = choosePages(links, t.website, opts.maxPages);
+    let links = await fc.map(t.website);
+    let pages = choosePages(links, t.website, opts.maxPages);
+    // Sites without a sitemap map to ~1 URL. Fall back to same-site links in the homepage (scraped anyway, so free).
+    if (pages.length < 3) {
+      const home = await fc.scrape(t.website);
+      const host = new URL(t.website).hostname;
+      const found = [...home.markdown.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)].map((m) => m[1].split("#")[0])
+        .filter((u) => { try { return new URL(u).hostname === host; } catch { return false; } });
+      links = [...new Set([...links, ...found])];
+      pages = choosePages(links, t.website, opts.maxPages);
+    }
     let propertyId: string | undefined;
 
     for (const page of pages) {
@@ -108,6 +117,12 @@ export async function scrapeTarget(db: Db, fc: Fetcher, t: Target, opts: { maxPa
         const r = await fc.scrape(page.url);
         stats.pages++; stats.credits += r.credits; if (r.cached) stats.cached++;
         if (!r.markdown) throw new Error("empty page");
+        // Access controls are respected, never bypassed: a challenge page ends this target.
+        // Match real challenge pages only; a "protected by reCAPTCHA" footer on a normal page is not a block.
+        if (/challenges\.cloudflare\.com|verify you are human|checking your browser|^\s*just a moment/i.test(r.markdown)) {
+          stats.errors.push(`${page.url}: blocked by bot protection (not bypassed)`);
+          break;
+        }
         propertyId ??= await resolveProperty(imp, db, t, r.json.property as Row);
         await storePage(imp, propertyId, t, page.type, page.url, r, stats);
         done.add(page.url);
