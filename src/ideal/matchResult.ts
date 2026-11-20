@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { MatchResult } from '../../server/matching'
+import { FINALISTS } from './contracts'
 
 const link = z.url({ protocol: /^https?$/ })
 const pending = z.object({
@@ -44,7 +45,7 @@ export const matchResultSchema = z
           )
         })
       )
-      .max(6)
+      .max(FINALISTS)
   })
   .refine(
     (r) => new Set(r.matches.map((m) => m.layoutId)).size === r.matches.length

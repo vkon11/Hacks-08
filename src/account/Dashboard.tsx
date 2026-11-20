@@ -25,6 +25,6 @@ export default function Dashboard({ user }: { user: User }) {
       {profile ? <><p>Up to ${(profile.setup.maxMonthlyCents / 100).toLocaleString()} per month · {profile.setup.pin.label}</p><a className="btn-secondary" href="/preferences/saved">View my housing brief</a></> : <p>Set your budget, choose a spot and tell us what matters in your apartment.</p>}
       {(!profile || resume) && <a className="btn-primary" href={routePath(step)}>{resume ? 'Continue questionnaire' : 'Start questionnaire'}</a>}
     </section>
-    <section className="summary-section"><h2>Your recommendations</h2>{profile ? <><p>Your shortlist includes up to six qualifying floor plans when listings are available.</p><a className="btn-secondary" href="/preferences/saved#shortlist">Open shortlist</a></> : <p>Complete your questionnaire to see apartments that fit your preferences.</p>}</section>
+    <section className="summary-section"><h2>Your recommendations</h2>{profile ? <><p>Your shortlist includes up to five qualifying floor plans when listings are available.</p><a className="btn-secondary" href="/preferences/saved#shortlist">Open shortlist</a></> : <p>Complete your questionnaire to see apartments that fit your preferences.</p>}</section>
   </main>
 }

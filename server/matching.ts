@@ -1,4 +1,4 @@
-import { requirementLabels, choiceLabel, type Criterion, type RequirementId, type SearchSetup } from '../src/ideal/contracts.ts'
+import { FINALISTS, requirementLabels, choiceLabel, type Criterion, type RequirementId, type SearchSetup } from '../src/ideal/contracts.ts'
 import type { Fact, Inventory, MatchEvidence } from './inventory.ts'
 import type { RouteEstimate, RouteLookup } from './routes.ts'
 
@@ -397,9 +397,9 @@ function researchScope(ranked: Scored[], cards: EvidenceCandidate[], criteria: C
   for (const row of ranked) if (!byLayout.has(row.candidate.layout.id)) byLayout.set(row.candidate.layout.id, row)
   const winners = [...byLayout.values()]
   if (winners.length < 2 || !totalWeight) return { targets: [], missing: [] }
-  const cutoff = winners[5]?.score
-  const next = winners[6]?.score
-  const top = new Set(winners.slice(0, 6).map(row => row.candidate.layout.id))
+  const cutoff = winners[FINALISTS - 1]?.score
+  const next = winners[FINALISTS]?.score
+  const top = new Set(winners.slice(0, FINALISTS).map(row => row.candidate.layout.id))
   const byOffer = new Map(cards.map(card => [card.offerId, card]))
   const targets: EvidenceCandidate[] = []
   const missing = new Map<string, Criterion>()
@@ -493,7 +493,7 @@ export async function rankMatches(filtered: FilteredInventory, inputCriteria: Cr
       score: criteria.length ? row.score : null, coverage: criteria.length ? row.coverage : null,
       evidence: row.relevant, reasons: row.reasons, unknowns: row.unknowns,
     })
-    if (matches.length === 6) break
+    if (matches.length === FINALISTS) break
   }
   return { status, matches, needsConfirmation, qualifiedLayouts, assessedLayouts, routingUnavailable, qualitativeStatus }
 }

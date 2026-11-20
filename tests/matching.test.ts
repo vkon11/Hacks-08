@@ -57,8 +57,8 @@ test('rank once per layout, deduplicate routing, and keep the winning offer and 
   const result = await rankMatches(filtered,[])
   assert.equal(routes,1)
   assert.equal(result.qualifiedLayouts,8)
-  assert.equal(result.matches.length,6)
-  assert.equal(new Set(result.matches.map(m=>m.layoutId)).size,6)
+  assert.equal(result.matches.length,5)
+  assert.equal(new Set(result.matches.map(m=>m.layoutId)).size,5)
   assert.deepEqual([result.matches[0].offerId,result.matches[0].optionId,result.matches[0].monthlyCents],['better','option0',88000])
   assert.ok(result.matches[0].evidence.some(e=>e.id==='listing'))
 })
@@ -118,7 +118,7 @@ test('a shortlist keeps qualified candidates outside the deeper assessment pool'
   })))
   assert.equal(result.qualifiedLayouts,34)
   assert.equal(result.assessedLayouts,30)
-  assert.equal(result.matches.length,6)
+  assert.equal(result.matches.length,5)
   assert.ok(result.matches.slice(0,4).every(match=>match.score===0 && match.coverage===0))
 })
 
@@ -175,7 +175,7 @@ test('bus routes include time from the representative departure and never silent
   assert.equal((await lookup({lat:42.27,lng:-83.75},{...setup,travelModes:['bus','walk','car','bike']}))?.minutes,23)
 })
 
-test('the new on-disk inventory format supplies six verified layouts for the new essentials', async () => {
+test('the new on-disk inventory format supplies five verified layouts for the new essentials', async () => {
   const { loadInventory } = await import('../server/inventory')
   const inventory = await loadInventory('tests/fixtures/fictional-inventory.json')
   const filtered = await filterInventory(inventory,{
@@ -185,7 +185,7 @@ test('the new on-disk inventory format supplies six verified layouts for the new
   })
   const result = await rankMatches(filtered,[])
   assert.equal(result.qualifiedLayouts,7)
-  assert.equal(result.matches.length,6)
+  assert.equal(result.matches.length,5)
   assert.equal(result.matches[0].layoutId,'fictional-layout-1')
   assert.equal(result.matches[0].monthlyCents,109000)
   assert.ok(result.matches[0].reasons.some(reason=>reason.includes('Heating')))
