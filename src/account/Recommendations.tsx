@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { PreferenceProfileV1 } from '../model'
-import { supabase } from './client'
+import { rank, type Match, type Property } from '../match/engine'
 
-interface Match { title: string; reason: string; listing_url: string }
-export default function Recommendations({ profile, userId }: { profile: PreferenceProfileV1; userId: string }) {
+// Housing data (567 properties) loads as its own chunk the first time recommendations are shown.
+let data: Promise<Property[]> | null = null
+const loadProperties = () => (data ??= import('../../data/export/properties.json').then(m => (m.default as unknown as { properties: Property[] }).properties))
+
+export default function Recommendations({ profile }: { profile: PreferenceProfileV1; userId: string }) {
   const [matches, setMatches] = useState<Match[] | null>(null)
   const [failed, setFailed] = useState(false)
   const [attempt, retry] = useState(0)
@@ -11,19 +14,17 @@ export default function Recommendations({ profile, userId }: { profile: Preferen
     let current = true
     setMatches(null)
     setFailed(false)
-    void supabase?.from('housing_recommendations').select('title,reason,listing_url')
-      .eq('user_id', userId).eq('profile_id', profile.profileId).eq('preferences_updated_at', profile.updatedAt)
-      .order('rank').then(({ data, error }) => {
-        if (!current) return
-        if (error && error.code !== 'PGRST205') setFailed(true)
-        else setMatches(data ?? [])
-      })
+    loadProperties().then(properties => { if (current) setMatches(rank(profile, properties)) })
+      .catch(() => { data = null; if (current) setFailed(true) })
     return () => { current = false }
-  }, [profile.profileId, profile.updatedAt, userId, attempt])
+  }, [profile, attempt])
   if (failed) return <p role="status">Couldn’t load your recommendations. <button className="text-button" onClick={() => retry(attempt + 1)}>Retry</button></p>
-  if (!matches) return <p role="status">Loading recommendations…</p>
-  if (!matches.length) return <p>Your preferences are saved. There are no apartment recommendations for this profile yet.</p>
-  return <ol className="matches">{matches.map((match, index) => <li key={index}>
-    {/^https?:\/\//i.test(match.listing_url) ? <a href={match.listing_url} rel="noreferrer" target="_blank">{match.title}</a> : <strong>{match.title}</strong>}
-    <span>{match.reason}</span></li>)}</ol>
+  if (!matches) return <p role="status">Ranking apartments…</p>
+  if (!matches.length) return <p>No apartments fit your budget and must-haves. Try raising your budget or moving a must-have to Nice to have.</p>
+  return <ol className="matches">{matches.map(match => <li key={match.propertyId}>
+    {/^https?:\/\//i.test(match.url) ? <a href={match.url} rel="noreferrer" target="_blank">{match.title}</a> : <strong>{match.title}</strong>}
+    <span>{match.reason}</span>
+    <span className="match-meta">{match.planName}</span>
+    {match.confirm.length > 0 && <span className="match-confirm">Confirm with the landlord: {match.confirm.join(', ')}</span>}
+  </li>)}</ol>
 }

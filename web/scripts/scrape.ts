@@ -172,8 +172,11 @@ async function storePage(imp: Importer, pid: string, t: Target, pageType: PageTy
       if (!onPage(String(p.quote))) { stats.rejected++; continue; }       // unsourced price: never stored
       const q = String(p.quote).toLowerCase();
       const priceType = /starting|from\b|as low as/.test(q) ? "advertised_starting" : String(p.price_type ?? "unknown");
+      // Basis comes from the quote's wording, not the model's label: "$1,565/mo" on a 4BR was labeled per-unit (wrong).
+      const basis = /per (bed|bedroom|person|student|resident)|\/ ?(bed|bedroom|person)|by the bed/.test(q) ? "per_person"
+        : /per (unit|apartment|home|house)|\/ ?(unit|apartment)|entire|whole/.test(q) ? "per_unit" : "unknown";
       await imp.listing({ property_id: pid, floor_plan_id: id, rent_min: p.rent_min ?? p.rent_max, rent_max: p.rent_max ?? p.rent_min,
-        pricing_basis: p.pricing_basis, pricing_frequency: p.pricing_frequency, price_type: priceType,
+        pricing_basis: basis, pricing_frequency: p.pricing_frequency, price_type: priceType,
         available_date: /^\d{4}-\d{2}-\d{2}$/.test(String(p.available_date)) ? p.available_date : null,
         raw_text: p.quote, source_id: sid });
       stats.prices++;

@@ -1,6 +1,6 @@
 # 61-factor coverage report
 
-Generated 2026-11-20T08:54:23.307Z from the housing database. Counts are properties per resolved state
+Generated 2026-11-20T15:59:16.835Z from the housing database. Counts are properties per resolved state
 (`property_factor_status` view). **Resolved** = TRUE, FALSE, or a known value (numeric/category) from evidence at a scope allowed to confirm the factor.
 **Building claim only** = a building-level TRUE exists, but the factor needs unit-level evidence, so it stays UNKNOWN.
 
