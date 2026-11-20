@@ -1,0 +1,20 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+dist-server/
+.vercel/
+
+# Local collectors and large source snapshots
+work/
+data/firecrawl/
+
+# Generated Graphify artifacts
+graphify-out/
+.graphify/
+
+# Browser test output
+test-results/
+playwright-report/

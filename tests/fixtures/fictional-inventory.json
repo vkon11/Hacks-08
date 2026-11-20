@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "inventoryVersion": "fictional-essentials-test-1",
+  "buildings": [
+    {"id": "fictional-building-1", "name": "Fictional Arbor Home 1", "address": "101 Fictional Test Lane", "entrance": {"state": "known", "value": {"lat": 42.281, "lng": -83.74}, "evidenceIds": ["fixture-1"]}},
+    {"id": "fictional-building-2", "name": "Fictional Arbor Home 2", "address": "102 Fictional Test Lane", "entrance": {"state": "known", "value": {"lat": 42.282, "lng": -83.74}, "evidenceIds": ["fixture-2"]}},
+    {"id": "fictional-building-3", "name": "Fictional Arbor Home 3", "address": "103 Fictional Test Lane", "entrance": {"state": "known", "value": {"lat": 42.283, "lng": -83.74}, "evidenceIds": ["fixture-3"]}},
+    {"id": "fictional-building-4", "name": "Fictional Arbor Home 4", "address": "104 Fictional Test Lane", "entrance": {"state": "known", "value": {"lat": 42.284, "lng": -83.74}, "evidenceIds": ["fixture-4"]}},
+    {"id": "fictional-building-5", "name": "Fictional Arbor Home 5", "address": "105 Fictional Test Lane", "entrance": {"state": "known", "value": {"lat": 42.285, "lng": -83.74}, "evidenceIds": ["fixture-5"]}},
+    {"id": "fictional-building-6", "name": "Fictional Arbor Home 6", "address": "106 Fictional Test Lane", "entrance": {"state": "known", "value": {"lat": 42.286, "lng": -83.74}, "evidenceIds": ["fixture-6"]}},
+    {"id": "fictional-building-7", "name": "Fictional Arbor Home 7", "address": "107 Fictional Test Lane", "entrance": {"state": "known", "value": {"lat": 42.287, "lng": -83.74}, "evidenceIds": ["fixture-7"]}}
+  ],
+  "layouts": [
+    {"id": "fictional-layout-1", "buildingId": "fictional-building-1", "name": "2-bed layout 1", "apartmentSqFt": {"state": "known", "value": 750, "evidenceIds": ["fixture-1"]}},
+    {"id": "fictional-layout-2", "buildingId": "fictional-building-2", "name": "2-bed layout 2", "apartmentSqFt": {"state": "known", "value": 760, "evidenceIds": ["fixture-2"]}},
+    {"id": "fictional-layout-3", "buildingId": "fictional-building-3", "name": "2-bed layout 3", "apartmentSqFt": {"state": "known", "value": 770, "evidenceIds": ["fixture-3"]}},
+    {"id": "fictional-layout-4", "buildingId": "fictional-building-4", "name": "2-bed layout 4", "apartmentSqFt": {"state": "known", "value": 780, "evidenceIds": ["fixture-4"]}},
+    {"id": "fictional-layout-5", "buildingId": "fictional-building-5", "name": "2-bed layout 5", "apartmentSqFt": {"state": "known", "value": 790, "evidenceIds": ["fixture-5"]}},
+    {"id": "fictional-layout-6", "buildingId": "fictional-building-6", "name": "2-bed layout 6", "apartmentSqFt": {"state": "known", "value": 800, "evidenceIds": ["fixture-6"]}},
+    {"id": "fictional-layout-7", "buildingId": "fictional-building-7", "name": "2-bed layout 7", "apartmentSqFt": {"state": "known", "value": 810, "evidenceIds": ["fixture-7"]}}
+  ],
+  "options": [
+    {"id": "fictional-room-1", "layoutId": "fictional-layout-1", "name": "Private room A", "bedroomOccupancy": {"state": "known", "value": 1, "evidenceIds": ["fixture-1"]}, "ac": {"state": "known", "value": "central", "evidenceIds": ["fixture-1"]}, "heating": {"state": "known", "value": true, "evidenceIds": ["fixture-1"]}},
+    {"id": "fictional-room-2", "layoutId": "fictional-layout-2", "name": "Private room A", "bedroomOccupancy": {"state": "known", "value": 1, "evidenceIds": ["fixture-2"]}, "ac": {"state": "known", "value": "central", "evidenceIds": ["fixture-2"]}, "heating": {"state": "known", "value": true, "evidenceIds": ["fixture-2"]}},
+    {"id": "fictional-room-3", "layoutId": "fictional-layout-3", "name": "Private room A", "bedroomOccupancy": {"state": "known", "value": 1, "evidenceIds": ["fixture-3"]}, "ac": {"state": "known", "value": "central", "evidenceIds": ["fixture-3"]}, "heating": {"state": "known", "value": true, "evidenceIds": ["fixture-3"]}},
+    {"id": "fictional-room-4", "layoutId": "fictional-layout-4", "name": "Private room A", "bedroomOccupancy": {"state": "known", "value": 1, "evidenceIds": ["fixture-4"]}, "ac": {"state": "known", "value": "central", "evidenceIds": ["fixture-4"]}, "heating": {"state": "known", "value": true, "evidenceIds": ["fixture-4"]}},
+    {"id": "fictional-room-5", "layoutId": "fictional-layout-5", "name": "Private room A", "bedroomOccupancy": {"state": "known", "value": 1, "evidenceIds": ["fixture-5"]}, "ac": {"state": "known", "value": "central", "evidenceIds": ["fixture-5"]}, "heating": {"state": "known", "value": true, "evidenceIds": ["fixture-5"]}},
+    {"id": "fictional-room-6", "layoutId": "fictional-layout-6", "name": "Private room A", "bedroomOccupancy": {"state": "known", "value": 1, "evidenceIds": ["fixture-6"]}, "ac": {"state": "known", "value": "central", "evidenceIds": ["fixture-6"]}, "heating": {"state": "known", "value": true, "evidenceIds": ["fixture-6"]}},
+    {"id": "fictional-room-7", "layoutId": "fictional-layout-7", "name": "Private room A", "bedroomOccupancy": {"state": "known", "value": 1, "evidenceIds": ["fixture-7"]}, "ac": {"state": "known", "value": "central", "evidenceIds": ["fixture-7"]}, "heating": {"state": "known", "value": true, "evidenceIds": ["fixture-7"]}}
+  ],
+  "offers": [
+    {"id": "fictional-offer-1", "optionId": "fictional-room-1", "name": "Fictional lease offer", "sourceUrl": "https://example.org/fictional-apartment-1", "checkedAt": "2026-11-20", "monthlyTotalCents": {"state": "known", "value": 109000, "evidenceIds": ["fixture-1"]}, "heatIncluded": {"state": "known", "value": true, "evidenceIds": ["fixture-1"]}},
+    {"id": "fictional-offer-2", "optionId": "fictional-room-2", "name": "Fictional lease offer", "sourceUrl": "https://example.org/fictional-apartment-2", "checkedAt": "2026-11-20", "monthlyTotalCents": {"state": "known", "value": 110000, "evidenceIds": ["fixture-2"]}, "heatIncluded": {"state": "known", "value": true, "evidenceIds": ["fixture-2"]}},
+    {"id": "fictional-offer-3", "optionId": "fictional-room-3", "name": "Fictional lease offer", "sourceUrl": "https://example.org/fictional-apartment-3", "checkedAt": "2026-11-20", "monthlyTotalCents": {"state": "known", "value": 111000, "evidenceIds": ["fixture-3"]}, "heatIncluded": {"state": "known", "value": true, "evidenceIds": ["fixture-3"]}},
+    {"id": "fictional-offer-4", "optionId": "fictional-room-4", "name": "Fictional lease offer", "sourceUrl": "https://example.org/fictional-apartment-4", "checkedAt": "2026-11-20", "monthlyTotalCents": {"state": "known", "value": 112000, "evidenceIds": ["fixture-4"]}, "heatIncluded": {"state": "known", "value": true, "evidenceIds": ["fixture-4"]}},
+    {"id": "fictional-offer-5", "optionId": "fictional-room-5", "name": "Fictional lease offer", "sourceUrl": "https://example.org/fictional-apartment-5", "checkedAt": "2026-11-20", "monthlyTotalCents": {"state": "known", "value": 113000, "evidenceIds": ["fixture-5"]}, "heatIncluded": {"state": "known", "value": true, "evidenceIds": ["fixture-5"]}},
+    {"id": "fictional-offer-6", "optionId": "fictional-room-6", "name": "Fictional lease offer", "sourceUrl": "https://example.org/fictional-apartment-6", "checkedAt": "2026-11-20", "monthlyTotalCents": {"state": "known", "value": 114000, "evidenceIds": ["fixture-6"]}, "heatIncluded": {"state": "known", "value": true, "evidenceIds": ["fixture-6"]}},
+    {"id": "fictional-offer-7", "optionId": "fictional-room-7", "name": "Fictional lease offer", "sourceUrl": "https://example.org/fictional-apartment-7", "checkedAt": "2026-11-20", "monthlyTotalCents": {"state": "known", "value": 115000, "evidenceIds": ["fixture-7"]}, "heatIncluded": {"state": "known", "value": true, "evidenceIds": ["fixture-7"]}}
+  ],
+  "evidence": [
+    {"id": "fixture-1", "label": "Fictional test listing", "text": "Fictional sample. Layout is 750 total sq ft, with central AC and heat included. Private room A costs $1090 monthly per resident with all mandatory charges.", "sourceUrl": "https://example.org/fictional-apartment-1", "checkedAt": "2026-11-20"},
+    {"id": "fixture-2", "label": "Fictional test listing", "text": "Fictional sample. Layout is 760 total sq ft, with central AC and heat included. Private room A costs $1100 monthly per resident with all mandatory charges.", "sourceUrl": "https://example.org/fictional-apartment-2", "checkedAt": "2026-11-20"},
+    {"id": "fixture-3", "label": "Fictional test listing", "text": "Fictional sample. Layout is 770 total sq ft, with central AC and heat included. Private room A costs $1110 monthly per resident with all mandatory charges.", "sourceUrl": "https://example.org/fictional-apartment-3", "checkedAt": "2026-11-20"},
+    {"id": "fixture-4", "label": "Fictional test listing", "text": "Fictional sample. Layout is 780 total sq ft, with central AC and heat included. Private room A costs $1120 monthly per resident with all mandatory charges.", "sourceUrl": "https://example.org/fictional-apartment-4", "checkedAt": "2026-11-20"},
+    {"id": "fixture-5", "label": "Fictional test listing", "text": "Fictional sample. Layout is 790 total sq ft, with central AC and heat included. Private room A costs $1130 monthly per resident with all mandatory charges.", "sourceUrl": "https://example.org/fictional-apartment-5", "checkedAt": "2026-11-20"},
+    {"id": "fixture-6", "label": "Fictional test listing", "text": "Fictional sample. Layout is 800 total sq ft, with central AC and heat included. Private room A costs $1140 monthly per resident with all mandatory charges.", "sourceUrl": "https://example.org/fictional-apartment-6", "checkedAt": "2026-11-20"},
+    {"id": "fixture-7", "label": "Fictional test listing", "text": "Fictional sample. Layout is 810 total sq ft, with central AC and heat included. Private room A costs $1150 monthly per resident with all mandatory charges.", "sourceUrl": "https://example.org/fictional-apartment-7", "checkedAt": "2026-11-20"}
+  ]
+}
