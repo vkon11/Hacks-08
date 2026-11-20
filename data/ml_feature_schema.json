@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-11-19",
+  "modeling_principle": "Filter hard constraints first, then rank viable homes using self-described preferences, evidence confidence, and uncertainty.",
+  "missing_value_policy": "Unknown stays null. It never becomes zero, false, or a negative signal. Missing consequential facts reduce confidence and are shown to the student.",
+  "feature_groups": [
+    {
+      "group": "student_constraints",
+      "privacy": "session-local by default; save only with explicit consent",
+      "features": [
+        {"name":"monthly_housing_budget","type":"currency_range","role":"hard_or_soft","description":"Maximum comfortable all-in monthly cost, not only advertised rent."},
+        {"name":"move_in_and_move_out","type":"date_range","role":"hard_constraint","description":"Required occupancy window, including semester, internship, and study-abroad timing."},
+        {"name":"campus_destinations","type":"weighted_locations","role":"preference","description":"Buildings or areas the student actually visits, with weekly frequency and arrival times."},
+        {"name":"mobility_and_access_needs","type":"structured_requirements","role":"hard_constraint","description":"Student-stated needs such as step-free route, elevator, accessible bath, visual alarm, or nearby accessible parking; never infer disability."},
+        {"name":"room_and_privacy_needs","type":"categorical_set","role":"hard_or_soft","description":"Private/shared bedroom, private/shared bath, studio, quiet study space, floor preference, and maximum household size."},
+        {"name":"roommate_preferences","type":"structured_preferences","role":"preference","description":"Sleep, study, cleaning, guests, substances, pets, temperature, noise, food sharing, and communication expectations."},
+        {"name":"household_and_pet_needs","type":"structured_requirements","role":"hard_or_soft","description":"Occupants, partner or family, pet type, vehicle count, bicycle storage, and storage needs."},
+        {"name":"lease_and_financial_constraints","type":"structured_requirements","role":"hard_constraint","description":"Guarantor availability, income/credit requirements, individual versus joint lease, financial-aid timing, deposit ceiling, and sublet need."},
+        {"name":"amenity_preferences","type":"weighted_set","role":"preference","description":"Furnished, laundry, kitchen, air conditioning, fitness, outdoor space, package handling, parking, and other student-selected needs."}
+      ]
+    },
+    {
+      "group": "listing_identity_and_availability",
+      "features": [
+        {"name":"canonical_property_and_unit_id","type":"string","source":"deduplicated source records","role":"identity"},
+        {"name":"normalized_address_and_coordinates","type":"address_geo","source":"listing plus geocoder","role":"join_key"},
+        {"name":"housing_type","type":"enum","source":"official or marketplace listing","values":["apartment","house","room","co_op","university","public_affordable","other"]},
+        {"name":"available_units_and_dates","type":"dated_inventory","source":"official property or marketplace","role":"hard_constraint"},
+        {"name":"application_status_and_waitlist","type":"structured_status","source":"official property","role":"hard_constraint"},
+        {"name":"bedrooms_bathrooms_occupancy","type":"structured_count","source":"floor plan or listing","role":"hard_or_soft"},
+        {"name":"square_feet_and_floor","type":"range","source":"floor plan or listing","role":"preference"},
+        {"name":"furnished_and_included_items","type":"structured_set","source":"official property or lease","role":"preference"}
+      ]
+    },
+    {
+      "group": "true_cost",
+      "features": [
+        {"name":"advertised_rent","type":"currency_range","required_metadata":["per_person_per_bed_or_whole_unit","observation_date","lease_term"],"role":"hard_or_soft"},
+        {"name":"mandatory_recurring_fees","type":"currency_components","examples":["technology","amenity","trash","parking","pet","furniture"],"role":"hard_or_soft"},
+        {"name":"utility_responsibility_and_estimate","type":"currency_components","examples":["electric","gas","water","sewer","internet"],"role":"hard_or_soft"},
+        {"name":"upfront_costs","type":"currency_components","examples":["application","administration","deposit","first_month","guarantor","moving"],"role":"hard_constraint"},
+        {"name":"rent_concessions","type":"dated_terms","description":"Store headline and effective rent separately; include conditions and expiration."},
+        {"name":"annualized_all_in_cost","type":"derived_currency","description":"Comparable total over the student's required occupancy period with a visible formula and uncertainty interval."},
+        {"name":"price_confidence","type":"ordinal","values":["verified_current","recent_official","aggregator","community_report","model_estimate","unknown"]}
+      ]
+    },
+    {
+      "group": "lease_and_timeline",
+      "features": [
+        {"name":"lease_start_end_and_term","type":"dates_duration","role":"hard_constraint"},
+        {"name":"installment_schedule","type":"structured_terms","description":"Distinguish number of payments from days of occupancy."},
+        {"name":"individual_or_joint_liability","type":"enum","values":["individual","joint_and_several","unknown"],"role":"hard_or_soft"},
+        {"name":"renewal_offer_and_decision_dates","type":"dated_terms","role":"timeline"},
+        {"name":"application_and_housing_search_milestones","type":"dated_events","role":"timeline"},
+        {"name":"guarantor_income_credit_rules","type":"structured_terms","role":"hard_constraint"},
+        {"name":"sublet_relet_assignment_rules","type":"structured_terms","role":"hard_or_soft"},
+        {"name":"cancellation_termination_and_late_fees","type":"structured_terms","role":"risk"},
+        {"name":"occupancy_limits_and_guest_rules","type":"structured_terms","role":"hard_or_soft"},
+        {"name":"promised_repairs_in_writing","type":"boolean_with_evidence","role":"risk"}
+      ]
+    },
+    {
+      "group": "room_building_and_accessibility",
+      "features": [
+        {"name":"bedroom_dimensions_and_layout","type":"dimensions_or_plan","role":"preference"},
+        {"name":"bathroom_privacy","type":"enum","values":["private","shared_with_roommate","shared_household","communal","unknown"]},
+        {"name":"natural_light_noise_and_temperature_control","type":"mixed_evidence","description":"Prefer measured or unit-specific facts; label resident reports as anecdotal."},
+        {"name":"laundry_kitchen_storage","type":"structured_set","role":"hard_or_soft"},
+        {"name":"step_free_path_and_entry","type":"boolean_with_evidence","role":"hard_constraint"},
+        {"name":"elevator_and_stairs","type":"structured_access","role":"hard_constraint"},
+        {"name":"door_hall_bath_accessibility","type":"structured_access","role":"hard_constraint"},
+        {"name":"visual_audible_safety_devices","type":"structured_access","role":"hard_constraint"},
+        {"name":"accessible_parking_and_transit_path","type":"structured_access","role":"hard_constraint"},
+        {"name":"accommodation_process","type":"official_process","description":"Show contact and process; never promise an accommodation."}
+      ]
+    },
+    {
+      "group": "mobility_and_location",
+      "features": [
+        {"name":"travel_time_distribution","type":"minutes_by_mode_and_time","modes":["walk","bike","university_bus","AAATA","drive"],"description":"Use morning/evening and winter-aware ranges rather than straight-line distance."},
+        {"name":"route_frequency_and_service_span","type":"schedule_metrics","source":"AAATA GTFS and U-M Magic Bus"},
+        {"name":"transfers_and_last_mile","type":"count_distance","role":"preference"},
+        {"name":"sidewalk_crossing_and_grade_access","type":"route_attributes","role":"hard_or_soft"},
+        {"name":"parking_cost_availability_and_rules","type":"structured_terms","role":"hard_or_soft"},
+        {"name":"bike_storage_and_route_access","type":"structured_attributes","role":"preference"},
+        {"name":"nearby_essentials","type":"distance_time_set","examples":["groceries","pharmacy","healthcare","laundry","library","study","childcare"]},
+        {"name":"winter_mobility_context","type":"official_context","description":"Show snow-route and sidewalk responsibility; do not pretend future clearing is guaranteed."}
+      ]
+    },
+    {
+      "group": "eligibility_compliance_and_risk",
+      "features": [
+        {"name":"student_or_program_eligibility","type":"structured_rules","role":"hard_constraint"},
+        {"name":"income_and_affordability_eligibility","type":"structured_rules","role":"hard_constraint"},
+        {"name":"certificate_of_compliance","type":"dated_status","source":"City of Ann Arbor STREAM/A2Trak","role":"hard_constraint_or_warning"},
+        {"name":"inspection_and_permit_history","type":"dated_records","source":"City of Ann Arbor","role":"risk_context"},
+        {"name":"floodplain_proximity","type":"official_geo_overlay","source":"City of Ann Arbor floodplain map","role":"risk_context"},
+        {"name":"building_access_and_security_features","type":"verified_set","description":"Entry control, lighting, locks, fire systems, and package handling; avoid demographic proxies."},
+        {"name":"public_incident_context","type":"time_bounded_official_counts","description":"If used, show raw official context and limitations. Never create a neighborhood 'safety score' or infer risk from race, income, or other protected traits."},
+        {"name":"lease_document_availability","type":"boolean_with_source","role":"confidence"}
+      ]
+    },
+    {
+      "group": "utilities_connectivity_and_environment",
+      "features": [
+        {"name":"internet_provider_speed_and_terms","type":"provider_reported_availability","source":"FCC and provider","description":"Availability is not measured in-unit performance."},
+        {"name":"energy_and_water_benchmark","type":"official_property_metric","source":"City of Ann Arbor open data where covered"},
+        {"name":"heating_cooling_and_controls","type":"structured_system","role":"hard_or_soft"},
+        {"name":"utility_setup_and_billing","type":"structured_terms","role":"timeline_and_cost"},
+        {"name":"recycling_compost_and_waste","type":"structured_service","role":"preference"},
+        {"name":"smoking_pet_and_air_quality_rules","type":"structured_terms","role":"hard_or_soft"}
+      ]
+    },
+    {
+      "group": "operations_and_trust",
+      "features": [
+        {"name":"maintenance_process_and_emergency_contact","type":"verified_process","role":"risk_context"},
+        {"name":"response_time_evidence","type":"distribution_by_source","description":"Keep official claims and resident anecdotes separate."},
+        {"name":"management_identity_and_contact","type":"structured_identity","role":"trust"},
+        {"name":"resident_signal_topics","type":"topic_evidence","examples":["noise","pests","maintenance","billing","internet","move_out"],"description":"No unverified allegation becomes a fact; show sample size, date, source, and disagreement."},
+        {"name":"source_provenance","type":"provenance_record","required_fields":["url","publisher","retrieved_at","observed_at","source_tier","extraction_method"]},
+        {"name":"field_confidence_and_freshness","type":"scored_metadata","description":"Calculated per field, not once for an entire property."},
+        {"name":"conflict_and_missingness","type":"structured_flags","description":"Retain conflicting values and expose consequential unknowns."}
+      ]
+    }
+  ],
+  "prohibited_features_and_uses": [
+    "No inferred race, ethnicity, religion, gender, sexuality, disability, nationality, or other protected trait.",
+    "No demographic composition or protected-trait proxy as a ranking input.",
+    "No neighborhood safety score derived from demographics, reputation, or sparse anecdotes.",
+    "No synthetic choice or recommendation labeled as real student behavior.",
+    "No precise schedule, disability, financial, or roommate data retained without consent and a clear purpose."
+  ]
+}

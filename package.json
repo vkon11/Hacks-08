@@ -1,0 +1,15 @@
+{
+  "name": "hacks-08",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Explainable student housing recommendations for Ann Arbor",
+  "type": "module",
+  "scripts": {
+    "check": "node --check scripts/build-inventory.mjs && node --check scripts/extract-umich-listings.mjs && node --check scripts/firecrawl-discover.mjs && node --check scripts/scrape-housing.mjs",
+    "scrape": "node scripts/scrape-housing.mjs",
+    "firecrawl": "node scripts/firecrawl-discover.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
