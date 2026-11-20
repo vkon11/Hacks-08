@@ -1,5 +1,7 @@
 # 61-factor coverage report
 
+> Scope note: the 567-property export below is the broad ingestion dataset and includes houses, condos, co-ops, rooms, and address-only listings. For the apartment-community-only product scope, use `data/research/umich_apartment_communities.json`. Do not present 567 as the number of eligible apartment communities.
+
 Generated 2026-11-20T08:54:23.307Z from the housing database. Counts are properties per resolved state
 (`property_factor_status` view). **Resolved** = TRUE, FALSE, or a known value (numeric/category) from evidence at a scope allowed to confirm the factor.
 **Building claim only** = a building-level TRUE exists, but the factor needs unit-level evidence, so it stays UNKNOWN.

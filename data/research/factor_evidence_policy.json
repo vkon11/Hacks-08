@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-11-20",
+  "factor_count": 61,
+  "purpose": "Research and normalization rules for housing factors. This is data policy, not UI configuration.",
+  "global_rules": [
+    "Missing evidence is UNKNOWN, never FALSE.",
+    "A broader-scope claim cannot prove a narrower-scope factor: building evidence does not prove a unit or bedroom feature.",
+    "A price labeled per person does not prove an individual lease.",
+    "A bed/bath count does not prove that a bathroom is assigned exclusively to one bedroom.",
+    "Select units, subject to availability, waitlist, or optional add-on language must remain conditional.",
+    "Route factors must preserve the selected travel mode and reference time; never silently substitute modes.",
+    "Accessibility factors require confirmation for the exact unit and complete path, not a generic accessibility badge."
+  ],
+  "source_priority": [
+    "Executed lease or dated written offer",
+    "Exact-unit or exact-floor-plan document",
+    "Current official property page",
+    "Official U-M Off-Campus Housing listing",
+    "Official transit, campus, or municipal data",
+    "Resident report used only as context, never as sole proof of a contractual or exact-unit fact"
+  ],
+  "evidence_classes": {
+    "calculated": {
+      "missing_data": "Keep UNKNOWN when the required route, destination, schedule, or selected mode is unavailable.",
+      "factors": ["commute_to_pin", "grocery_nearby", "one_seat_ride", "short_walk_bus_stop", "library_nearby", "campus_gym_nearby"]
+    },
+    "listed": {
+      "missing_data": "Require an explicit current listing, inventory, or offer statement; omission is UNKNOWN.",
+      "factors": ["private_bedroom", "apartment_size", "laundry", "furnished", "air_conditioning", "whole_place", "bedroom_count", "storage_locker", "desk_included", "private_outdoor_space", "home_type", "private_entrance", "dishwasher", "full_oven", "internet_included", "bedroom_ethernet", "free_laundry", "bedroom_door_lock", "gym", "study_room", "free_printing", "package_locker", "indoor_bike_storage", "elevator", "controlled_entry", "pool", "hot_tub", "fitness_studio", "resident_lounge", "outdoor_hangout", "trash_chute", "maintenance_24h", "parking_space", "ev_charging"]
+    },
+    "floor_plan_or_exact_unit": {
+      "missing_data": "Require the assigned floor plan, room dimensions, or exact-unit statement; do not infer from photos.",
+      "factors": ["private_bathroom", "separate_living_room", "separate_dining_room", "bonus_room_den", "bedroom_size", "walk_in_closet", "bedroom_exterior_window", "floor_level", "bedroom_floor_surface"]
+    },
+    "policy_or_lease": {
+      "missing_data": "Require the current written offer, lease, fee schedule, or building policy; unresolved conditions stay pending.",
+      "factors": ["heat_included", "smoke_free", "pets_allowed", "individual_lease", "roommate_matching", "academic_term_lease", "subletting_permitted", "guarantor_optional", "coop_meals"]
+    },
+    "manual_exact_unit_confirmation": {
+      "missing_data": "Obtain written confirmation for the assigned unit and the complete relevant route.",
+      "factors": ["step_free_to_unit", "step_free_laundry", "roll_in_shower"]
+    }
+  },
+  "official_guidance_sources": [
+    "https://deanofstudents.umich.edu/student-programs/beyond-the-diag/finding-housing-roommates/",
+    "https://deanofstudents.umich.edu/student-programs/beyond-the-diag/off-campus-living-guide/living-on-your-own/",
+    "https://rackham.umich.edu/student-experience/housing/",
+    "https://parents.umich.edu/page/campus-housing",
+    "https://offcampushousing.umich.edu/listing"
+  ]
+}
