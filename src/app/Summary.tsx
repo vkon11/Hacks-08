@@ -6,6 +6,7 @@ import { BriefMap } from '../ideal/BriefMap'
 import { choiceLabel, requirementLabels, type RequirementId } from '../ideal/contracts'
 import { matchResultSchema } from '../ideal/matchResult'
 import { requestHousing } from '../ideal/api'
+import FinalRound from '../ideal/FinalRound'
 
 const money = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -175,9 +176,9 @@ export default function Summary({
         <button className="text-button" disabled={loading} onClick={() => setAttempt((n) => n + 1)}>
           {error ? 'Retry shortlist' : 'Refresh shortlist'}
         </button>
-        <p className="upcoming">
-          Coming later · Compare two floor plans at a time to choose your final three.
-        </p>
+        {result?.status === 'ready' && result.matches.length >= 2 && (
+          <FinalRound matches={result.matches} revision={revision} />
+        )}
       </section>
       <section className="summary-section">
         <div className="summary-heading">

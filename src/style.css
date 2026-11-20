@@ -173,4 +173,4 @@ h1:focus{outline:none}
 .preview-nodes span{display:flex;align-items:center;gap:4px;border-radius:4px;background:#e4ede1;padding:5px 6px;font-size:11px;font-weight:650;color:#345644}
 .question-essentials,.question-builder{max-width:1160px}
 @media(max-width:730px){.brief-preview{padding:11px 13px;bottom:5%}.brief-preview blockquote{margin:5px 0 8px}.preview-nodes span{font-size:10px;padding:3px 5px}}
-.shortlist{padding-inline-start:1.65em}.shortlist>li{padding:12px 0;border-bottom:1px solid var(--line)}.shortlist h3{font-size:19px}.shortlist h3 span{font-size:15px}.shortlist p{margin:.4em 0}.summary-section .upcoming{font-size:14px;color:var(--muted);margin-top:12px}.summary-section details{padding-block:8px}.summary-section summary{cursor:pointer;font-weight:600}
+.shortlist{padding-inline-start:1.65em}.shortlist>li{padding:12px 0;border-bottom:1px solid var(--line)}.shortlist h3{font-size:19px}.shortlist h3 span{font-size:15px}.shortlist p{margin:.4em 0}.summary-section details{padding-block:8px}.summary-section summary{cursor:pointer;font-weight:600}
