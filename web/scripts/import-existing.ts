@@ -309,7 +309,7 @@ export async function importAll(db: Db, dataDir: string) {
 }
 
 if (process.argv[1]?.endsWith("import-existing.ts")) {
-  const db = connect();
+  const db = await connect();
   const result = await importAll(db, join(import.meta.dirname, "../../data"));
   console.log(JSON.stringify(result.summary, null, 2));
   if (result.errors.length) console.error(result.errors.slice(0, 10).join("\n"));
