@@ -1,7 +1,7 @@
 // Imports the research datasets already in data/ into the Supabase housing schema. Uses no Firecrawl credits.
 // Idempotent: re-running inserts nothing new (dedupe by address, source hash, and evidence keys).
 // Usage (from web/): node --env-file=.env.local scripts/import-existing.ts
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { connect, type Db } from "./lib/db.ts";
 import { FACTORS, FACTOR_BY_KEY, type Scope } from "../src/lib/housing/factors.ts";
@@ -310,7 +310,11 @@ export async function importAll(db: Db, dataDir: string) {
 
 if (process.argv[1]?.endsWith("import-existing.ts")) {
   const db = await connect();
-  const result = await importAll(db, join(import.meta.dirname, "../../data"));
+  // The raw research files were removed from main (still in git history at c988ca1). Keep a local copy in
+  // work/source-data: git archive c988ca1 data/housing_seed.json data/inventory | tar -x -C work/source-data --strip-components=1
+  const repoData = join(import.meta.dirname, "../../data");
+  const dataDir = existsSync(join(repoData, "inventory/umich-offcampus-listings.json")) ? repoData : join(import.meta.dirname, "../../work/source-data");
+  const result = await importAll(db, dataDir);
   console.log(JSON.stringify(result.summary, null, 2));
   if (result.errors.length) console.error(result.errors.slice(0, 10).join("\n"));
   await db.close();
